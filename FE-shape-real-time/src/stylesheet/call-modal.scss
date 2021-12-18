@@ -1,0 +1,47 @@
+.call-modal {
+	position: absolute;
+	width: 400px;
+	padding: 20px;
+	left: calc(50vw - 200px);
+	top: calc(50vh - 60px);
+	background: -webkit-linear-gradient(top,#074055 0%,#030D10 100%);
+	@include border-radius(5px);
+	text-align: center;
+	display: none;
+
+	&.active {
+		display: block;
+		z-index: 9999;
+		@include animation(blinking 3s infinite linear);
+	}
+
+	.btn-action:not(.hangup) {
+		background-color: $green;
+	}
+
+	span.caller {
+		color: $blue;
+	}
+
+	p {
+		font-size: 1.5em;
+	}
+}
+.overlay-background{
+	background-color: #00000073;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    top: 0px;
+    left: 0px;
+    opacity: 0.5;
+    filter: alpha(opacity=0.2);
+}
+
+@include keyframes(blinking) {
+	25% {@include transform(scale(0.96))}
+	50% {@include transform(scale(1))}
+	75% {@include transform(scale(0.96))}
+	100% {@include transform(scale(1))}
+}

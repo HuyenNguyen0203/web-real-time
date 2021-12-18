@@ -1,0 +1,79 @@
+.main-window {
+	padding-top: 80px;
+	font-size: 1.75em;
+
+	@media screen and (max-width: 767px) {
+		padding-top: 40px;
+
+		.pull-left,
+		.pull-right {
+			width: 100%;
+			text-align: center;
+		}
+
+		.pull-right {
+			margin-top: 20px;
+		}
+	}
+
+	.btn-action {
+		$height: 60px;
+		height: $height;
+		width: $height;
+		margin: 20px 30px 0px 0px;
+		line-height: $height;
+		text-align: center;
+		border-radius: 50%;
+		border: solid 2px $blue-light;
+		cursor: pointer;
+		transition-duration: 0.25s;
+		background-color: transparent;
+		color: $blue-light;
+
+		&:hover {
+			background-color: rgba($main-color, 0.2);
+		}
+	}
+
+	.txt-clientId {
+		height: 40px;
+		margin: 40px auto 0px 10px;
+		color: $main-color;
+		font-size: 0.9em;
+		background-color: transparent;
+		border: none;
+		border-bottom: solid 1px $main-color;
+		@include input-placeholder(rgba($main-color, 0.8));
+	}
+	.meeting-page {
+		text-align: center;
+		h1 {
+			margin-bottom: 40px;
+			color: $blue-light;
+		}
+	}
+	.text-id {
+		color: #2b394e;
+		font-weight: 600;
+		font-family: "Nunito", sans-serif;
+		background-color: #CFDDE0;
+		text-align: center;
+		border-radius: 9px;
+		
+	}
+	.other-id{
+		font-weight: 600;
+		font-family: "Nunito", sans-serif;
+		color: #2b394e;
+		input{
+			border: 1px solid $blue-light;
+			border-radius: 7px;
+			text-align: center;
+		}
+		::placeholder {
+			color: #838A96;
+			font-size: 16px;
+			text-align: center;
+		  }
+	}
+}

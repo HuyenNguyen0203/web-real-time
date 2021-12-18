@@ -1,0 +1,43 @@
+$fa-font-path: "~font-awesome/fonts";
+@import "~font-awesome/scss/font-awesome";
+
+$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap";
+
+@import "variables";
+@import "shared/base";
+
+body {
+  background: $bg-main;
+  padding: 0px 20px 20px 20px;
+  min-height: 100vh;
+  font-family: 'Kameron', serif;
+}
+
+.navbar-brand {
+  font-size: 1.5em;
+  img {
+    display: inline-block;
+    width: 50px;
+  }
+}
+
+#root {
+  h2 {
+    margin-top: 0px;
+  }
+
+  h4 {
+    margin-top: 20px;
+  }
+}
+
+.btn-action {
+  outline: none;
+  border: none;
+}
+
+
+@import "call-screen";
+@import "call-actions";
+@import "call-modal";
