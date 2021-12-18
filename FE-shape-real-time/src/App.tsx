@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import socket from './utils/socket';
-import PeerConnection from './utils/PeerConnection';
+import PeerConnection from './utils/peerConnection';
 import CallScreen from './components/VideoCall/CallScreen';
 import CallAction from './components/VideoCall/CallAction';
 import CallModal from './components/VideoCall/CallModal';
