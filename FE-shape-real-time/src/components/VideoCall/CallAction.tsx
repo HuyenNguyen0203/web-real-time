@@ -27,7 +27,7 @@ const CallWindow: React.FC<CallWindowProps> = (props) => {
   useEffect(() => {
     if (peerVideo.current && peerSrc) peerVideo.current.srcObject = peerSrc;
     if (localVideo.current && localSrc) localVideo.current.srcObject = localSrc;
-  });
+  },[peerSrc, localSrc]);
 
   useEffect(() => {
     if (mediaDevice) {
@@ -76,6 +76,6 @@ const CallWindow: React.FC<CallWindowProps> = (props) => {
       </div>
     </div>
   );
-}
+};
 
 export default CallWindow;

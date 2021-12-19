@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Component } from 'react';
-import _ from 'lodash';
+import { isEmpty } from 'lodash';
 import socket from './utils/socket';
 import PeerConnection from './utils/peerConnection';
 import CallScreen from './components/VideoCall/CallScreen';
@@ -16,17 +17,13 @@ interface AppStates {
   peerSrc?: null
 }
 
-interface AppProps {
-
-}
-
-class App extends Component<AppProps, AppStates> {
+class App extends Component<any, AppStates> {
   private config: any;
   private pc: any;
   startCallHandler: (isCaller: boolean, friendID: string, config: any) => void;
   endCallHandler: (isStarter: boolean) => void;
   rejectCallHandler: () => void;
-  constructor(props: AppProps) {
+  constructor(props: any) {
     super(props);
     this.pc = {};
     this.config = null;
@@ -40,7 +37,7 @@ class App extends Component<AppProps, AppStates> {
       callFrom: '',
       localSrc: null,
       peerSrc: null
-    }
+    };
   }
 
   componentDidMount() {
@@ -91,7 +88,7 @@ class App extends Component<AppProps, AppStates> {
    * @param {boolean} isStarter 
    */
   endCall(isStarter: boolean) {
-    if (_.isFunction(this.pc.stop)) {
+    if (typeof (this.pc.stop) === 'function') {
       this.pc.stop(isStarter);
     }
     this.pc = {};
@@ -112,7 +109,7 @@ class App extends Component<AppProps, AppStates> {
           clientId={clientId}
           startCall={this.startCallHandler}
         />
-        {!_.isEmpty(this.config) && (
+        {!isEmpty(this.config) && (
           <CallAction
             status={callAction}
             localSrc={localSrc}

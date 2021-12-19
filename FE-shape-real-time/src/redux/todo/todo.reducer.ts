@@ -37,4 +37,4 @@ const todoReducer = (state = initialState, action: TodoActions) => {
   }
 };
 
-export default todoReducer
+export default todoReducer;

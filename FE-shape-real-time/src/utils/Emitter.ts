@@ -1,5 +1,4 @@
-import _ from 'lodash';
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 class Emitter {
   private events: any = {};
 
@@ -17,7 +16,7 @@ class Emitter {
   }
 
   off(event?: string, fn?: Function) {
-    if (event && _.isFunction(fn)) {
+    if (event && typeof(fn) === 'function') {
       const listeners = this.events[event];
       const index = listeners.findIndex((_fn: Function) => _fn === fn);
       listeners.splice(index, 1);

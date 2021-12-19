@@ -1,11 +1,11 @@
 const io = require('socket.io');
-const users = require('./users');
+import * as users from './users';
 
 /**
  * Initialize when a connection is made
  * @param {SocketIO.Socket} socket
  */
-function initSocket(socket) {
+const initSocket = (socket) => {
   let id;
   socket
     .on('init', async () => {
@@ -42,7 +42,7 @@ function initSocket(socket) {
     });
 }
 
-module.exports = (server) => {
+export const socket = (server) => {
   io({ path: '/bridge', serveClient: false })
     .listen(server, { log: true })
     .on('connection', initSocket);

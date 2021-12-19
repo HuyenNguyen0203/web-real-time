@@ -51,6 +51,6 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
       </div>
     </div>
   );
-}
+};
 
 export default CallScreen;

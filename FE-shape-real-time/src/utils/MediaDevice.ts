@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { set } from 'lodash';
 import Emitter from './emitter';
 
 /**
@@ -6,7 +6,7 @@ import Emitter from './emitter';
  */
 class MediaDevice extends Emitter {
 
-  private stream : any;
+  private stream: any;
   /**
    * Start media devices and send stream
    */
@@ -35,7 +35,7 @@ class MediaDevice extends Emitter {
 
     return this;
   }
- 
+
   /**
    * Turn on/off a device
    * @param {String} type - Type of the device
@@ -46,7 +46,7 @@ class MediaDevice extends Emitter {
     if (this.stream) {
       this.stream[`get${type}Tracks`]().forEach((track: MediaStreamTrack) => {
         const state = len === 2 ? on : !track.enabled;
-        _.set(track, 'enabled', state);
+        set(track, 'enabled', state);
       });
     }
     return this;

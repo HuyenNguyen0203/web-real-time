@@ -1,4 +1,4 @@
 export enum Devices {
-	Video = 'Video',
-	Audio = 'Audio'
+  Video = 'Video',
+  Audio = 'Audio'
 }

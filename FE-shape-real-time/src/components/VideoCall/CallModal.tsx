@@ -7,10 +7,10 @@ interface CallModalProps {
   callFrom?: string;
   startCall: Function;
   rejectCall: Function;
-};
+}
 
 const CallModal: React.FC<CallModalProps> = (props) => {
-  const { status, callFrom, startCall, rejectCall } = props
+  const { status, callFrom, startCall, rejectCall } = props;
   const acceptWithVideo = (video: boolean) => {
     const config = { audio: true, video };
     return () => startCall(false, callFrom, config);
@@ -38,8 +38,8 @@ const CallModal: React.FC<CallModalProps> = (props) => {
         onClick={() => rejectCall()}
       />
     </div>
-  </>
-}
+  </>;
+};
 
 
 export default CallModal;
