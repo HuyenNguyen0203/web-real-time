@@ -38,7 +38,7 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
         <h1>
           Welcome to meeting
         </h1>
-        <span className='text-id clearfix'>ID: {clientId}</span>
+        <b>ID:</b><span className='text-id clearfix'>{clientId}</span>
         <h3>Please input connect ID </h3>
         <Input
           type="text"

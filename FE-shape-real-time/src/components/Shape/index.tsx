@@ -21,14 +21,14 @@ export const Shape = (props: ShapeProps) => {
 
     switch (type) {
       case ShapeTypes.Circle:
-        shapeInstance = new fabric.Circle({ radius: 30, fill: 'green', left: 150, top: 150 });
+        shapeInstance = new fabric.Circle({ radius: 30, fill: '#19282C', left: 150, top: 150 });
         break;
       case ShapeTypes.Square:
         shapeInstance = new fabric.Rect({ fill: 'green', width: 50, height: 50, left: 200, top: 200 });
         break;
       default:
         shapeInstance = new fabric.Triangle({
-          fill: 'green', width: 50, height: 50, left: 240, top: 240
+          fill: '#045A68', width: 50, height: 50, left: 240, top: 240
         });
         break;
     }
@@ -107,7 +107,7 @@ export const Shape = (props: ShapeProps) => {
   }, []);
 
   return <>
-    <Grid>
+    <Grid className='shape-container'>
       <Grid.Column width={4}>
         <LeftMenu handleAddShape={handleAddShape} />
       </Grid.Column>

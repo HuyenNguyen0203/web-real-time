@@ -19,19 +19,23 @@ interface CallActionProps {
 }
 
 const CallAction: React.FC<CallActionProps> = (props) => {
-  const { status, localSrc, peerSrc, config, mediaDevice, endCall, drawingId } = props;
+  const [video, setVideo] = useState(props.config.video);
+  const [audio, setAudio] = useState(props.config.audio);
   const peerVideo = useRef<HTMLVideoElement>(null);
   const localVideo = useRef<HTMLVideoElement>(null);
-  const [video, setVideo] = useState(config.video);
-  const [audio, setAudio] = useState(config.audio);
+
+  const { status, localSrc, peerSrc, mediaDevice, endCall, drawingId } = props;
 
   useEffect(() => {
+    console.log(' INIT VIDEO ');
+    
     if (peerVideo.current && peerSrc) peerVideo.current.srcObject = peerSrc;
     if (localVideo.current && localSrc) localVideo.current.srcObject = localSrc;
   }, [peerSrc, localSrc]);
 
   useEffect(() => {
     if (mediaDevice) {
+      console.log({mediaDevice});
       mediaDevice.toggle(Devices.Video, video);
       mediaDevice.toggle(Devices.Audio, audio);
     }
