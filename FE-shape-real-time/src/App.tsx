@@ -4,7 +4,6 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { Shape } from './components/Shape';
 import VideoCall from './components/VideoCall';
 import socket from './utils/socket';
 

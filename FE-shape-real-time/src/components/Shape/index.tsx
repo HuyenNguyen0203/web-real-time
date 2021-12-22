@@ -23,6 +23,10 @@ export const Shape = (props: ShapeProps) => {
     }
   };
 
+  /**
+   * 
+   * @param {ShapeTypes} type 
+   */
   const handleAddShape = (type: ShapeTypes) => {
     let shapeInstance: any;
 

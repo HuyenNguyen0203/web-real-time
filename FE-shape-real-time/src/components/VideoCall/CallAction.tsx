@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 import { Devices } from '../../constants/enums';
-import { Button } from 'semantic-ui-react';
 
 const getButtonClass = (icon: string, enabled: boolean) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
 
@@ -15,14 +14,13 @@ interface CallActionProps {
   };
   mediaDevice: any;
   endCall: Function;
-  drawingId?: string;
   startPainWithFriend: Function;
   isShowDraw?: boolean;
   endPainWithFriend: Function;
 }
 
 const CallAction: React.FC<CallActionProps> = (props) => {
-  const { status, localSrc, peerSrc, config, mediaDevice, endCall, drawingId, startPainWithFriend, isShowDraw,
+  const { status, localSrc, peerSrc, config, mediaDevice, endCall, startPainWithFriend, isShowDraw,
     endPainWithFriend } = props;
   const peerVideo = useRef<HTMLVideoElement>(null);
   const localVideo = useRef<HTMLVideoElement>(null);
@@ -58,13 +56,11 @@ const CallAction: React.FC<CallActionProps> = (props) => {
 
   return (
     <div className={classnames('call-window', status)}>
-      <video id="peerVideo" style={{ display: isShowDraw ? 'none' : 'block' }} ref={peerVideo} autoPlay />
+      <video id="peerVideo" style={{ display: isShowDraw ? 'none' : 'block' }}  ref={peerVideo} autoPlay />
       <video id="localVideo" ref={localVideo} autoPlay muted />
       <div className="video-control">
-        <h2>{`${drawingId ? 'Draw' : 'Contact'} with...`}</h2>
-        {
-          !drawingId && <>
-            <button
+        <h2>Contact with...</h2>
+        <button
               key="btnVideo"
               type="button"
               className={getButtonClass('fa-video-camera', video)}
@@ -95,11 +91,6 @@ const CallAction: React.FC<CallActionProps> = (props) => {
               className="btn-action hangup fa fa-phone"
               onClick={() => endCall(true)}
             />
-          </>
-        }
-        {
-          drawingId && <button className="btn-draw cancel" onClick={() => endCall(true)}>Cancel</button>
-        }
       </div>
     </div>
   );

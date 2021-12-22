@@ -6,7 +6,7 @@ interface LeftMenuProps {
   handleAddShape: Function;
 }
 const LeftMenu = (props: LeftMenuProps) => {
-  const [activeItem, setActiveItem] = React.useState('account');
+  const [activeItem, setActiveItem] = React.useState('');
 
   const handleItemClick = (e: any) => {
     setActiveItem(e.name);

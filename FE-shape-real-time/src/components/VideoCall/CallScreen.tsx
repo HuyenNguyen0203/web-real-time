@@ -4,11 +4,10 @@ import { Icon, Input } from 'semantic-ui-react';
 interface CallScreenProps {
   startCall?: Function;
   clientId?: string;
-  startPain?: Function;
 }
 
 const CallScreen: React.FC<CallScreenProps> = (props) => {
-  const { startCall, clientId, startPain } = props;
+  const { startCall, clientId } = props;
   const [friendID, setFriendID] = useState(null);
   const [isCopied, setIscopied] = useState(false);
 
