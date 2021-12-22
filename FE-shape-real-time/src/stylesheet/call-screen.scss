@@ -55,28 +55,51 @@
 			margin-bottom: 40px;
 			color: $blue-light;
 		}
+		.client-id {
+			display: flex;
+			justify-content: center;
+			.icon-copy {
+				cursor: pointer;
+				.check{
+					color: green;
+				}
+			}
+			.icon-copy:hover + .hide {
+				display: block;
+				color: #2b394e;
+			}
+			.hide {
+				display: none;
+			}
+		}
+		.truncate {
+			width: 250px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			margin-right: 20px;
+		}
 	}
 	.text-id {
 		color: #2b394e;
 		font-weight: 600;
 		font-family: "Nunito", sans-serif;
-		background-color: #CFDDE0;
+		background-color: #cfdde0;
 		text-align: center;
 		border-radius: 9px;
-		
 	}
-	.other-id{
+	.other-id {
 		font-weight: 600;
 		font-family: "Nunito", sans-serif;
 		color: #2b394e;
-		input{
+		input {
 			border-radius: 7px;
 			text-align: center;
 		}
 		::placeholder {
-			color: #838A96;
+			color: #838a96;
 			font-size: 16px;
 			text-align: center;
-		  }
+		}
 	}
 }

@@ -6,47 +6,43 @@ import CustomerConnection from '../../utils/customerConnection';
 import CallModal from './CallModal';
 import CallScreen from './CallScreen';
 import CallAction from './CallAction';
-import { Link } from 'react-router-dom';
+import { Shape } from '../Shape';
 
 interface AppStates {
   clientId?: string;
+  friendId: string;
   callAction: string;
   callModal?: string;
   callFrom?: string;
   localSrc?: null;
   peerSrc?: null;
-  isDrawing?: boolean;
-  drawingId?: string;
-  drawAction: string;
-  currentDrawingId?: string;
+  isShowDraw?: boolean;
 }
 
 class VideoCall extends Component<any, AppStates> {
   private config: any;
   private pc: any;
-  private drawId: string;
-  startCallHandler: (isCaller: boolean, friendID: string, config: any) => void;
+  startCallHandler: (isCaller: boolean, friendId: string, config: any) => void;
   endCallHandler: (isStarter: boolean) => void;
+
   rejectCallHandler: () => void;
+
   constructor(props: any) {
     super(props);
     this.pc = {};
     this.config = null;
-    this.drawId = '';
     this.startCallHandler = this.startCall.bind(this);
     this.endCallHandler = this.endCall.bind(this);
     this.rejectCallHandler = this.rejectCall.bind(this);
     this.state = {
       clientId: '',
+      friendId: '',
       callAction: '',
       callModal: '',
       callFrom: '',
       localSrc: null,
       peerSrc: null,
-      isDrawing: false,
-      drawingId: '',
-      drawAction: '',
-      currentDrawingId: ''
+      isShowDraw: false
     };
   }
 
@@ -55,8 +51,8 @@ class VideoCall extends Component<any, AppStates> {
       .on(SocketEvent.init, ({ id: clientId }: any) => {
         this.setState({ clientId });
       })
-      .on(SocketEvent.request, ({ from: callFrom }: any) => {
-        this.setState({ callModal: 'active', callFrom });
+      .on(SocketEvent.request, ({ from }: any) => {
+        this.setState({ callModal: 'active', friendId: from });
       })
       .on(SocketEvent.call, (data: any) => {
         if (data.sdp) {
@@ -64,15 +60,11 @@ class VideoCall extends Component<any, AppStates> {
           if (data.sdp.type === 'offer') this.pc.createAnswer();
         } else this.pc.addIceCandidate(data.candidate);
       })
-      .on(SocketEvent.startDraw, (data: any) => {
-        this.setState({ drawingId: data.from, drawAction: 'active' });
+      .on(SocketEvent.startDraw, () => {
+        this.setState({ isShowDraw: true });
       })
-      .on(SocketEvent.draw, (data: any) => {
-        if (data) {
-          sessionStorage.setItem('drawingId', data.from);
-          sessionStorage.setItem('toDrawId', this.state.clientId || '');
-          document.getElementById('go-to-shape')?.click();
-        }
+      .on(SocketEvent.endDraw, () => {
+        this.setState({ isShowDraw: false });
       })
       .on(SocketEvent.end, this.endCall.bind(this, false))
       .emit(SocketEvent.init);
@@ -81,34 +73,37 @@ class VideoCall extends Component<any, AppStates> {
   /**
    * 
    * @param {boolean} isCaller
-   * @param {string} friendID 
+   * @param {string} friendId 
    * @param {any} config 
    */
-  startCall(isCaller: boolean, friendID: string, config: any) {
+  startCall(isCaller: boolean, friendId: string, config: any) {
     this.config = config;
-    this.pc = new CustomerConnection(friendID)
+    this.pc = new CustomerConnection(friendId)
       .on('localStream', (src: any) => {
-        const newState: AppStates = { callAction: 'active', localSrc: src, drawAction: '' };
+        const newState: AppStates = { callAction: 'active', localSrc: src, friendId: friendId || this.state.friendId };
         if (!isCaller) newState.callModal = '';
         this.setState(newState);
       })
-      .on('peerStream', (src: any) => this.setState({ peerSrc: src }))
+      .on('peerStream', (src: any) => this.setState({ peerSrc: src, friendId: friendId || this.state.friendId }))
       .start(isCaller, config);
   }
 
-  acceptDraw() {
-    const { drawingId } = this.state;
-    // const canvas = document.getElementById('shape') as HTMLCanvasElement;
-    // const base64ImageData = canvas.toDataURL("image/png");
-    this.props.socket.emit(SocketEvent.draw, { to: drawingId });
-    this.setState({ isDrawing: true });
-    document.getElementById('go-to-shape')?.click();
-  }
+  // acceptDraw() {
+  //   const { drawingId } = this.state;
+  //   // const canvas = document.getElementById('shape') as HTMLCanvasElement;
+  //   // const base64ImageData = canvas.toDataURL("image/png");
+  //   this.props.socket.emit(SocketEvent.draw, { to: drawingId });
+  //   this.setState({ isDrawing: true });
+  //   document.getElementById('go-to-shape')?.click();
+  // }
 
-  startPain(friendID: string) {
-    this.drawId = friendID;
-    this.props.socket.emit(SocketEvent.startDraw, { to: friendID });
-    this.setState({ currentDrawingId: friendID, drawAction: 'active' });
+  startPainWithFriend() {
+    //this.drawId = friendID;
+    this.setState({ isShowDraw: true }, () => {
+      const { friendId } = this.state;
+      this.props.socket.emit(SocketEvent.startDraw, { to: friendId });
+    });
+    //this.setState({ fromDrawingId: friendID });
   }
 
   // handleAddPain() {
@@ -121,12 +116,6 @@ class VideoCall extends Component<any, AppStates> {
     const { callFrom } = this.state;
     this.props.socket.emit('end', { to: callFrom });
     this.setState({ callModal: '' });
-  }
-
-  rejectDraw() {
-    const { drawingId } = this.state;
-    this.props.socket.emit('end', { to: drawingId });
-    this.setState({ drawingId: '', drawAction: '', currentDrawingId: '' });
   }
 
   /**
@@ -144,41 +133,46 @@ class VideoCall extends Component<any, AppStates> {
       callModal: '',
       localSrc: null,
       peerSrc: null,
-      currentDrawingId: '',
-      drawAction: ''
+      isShowDraw: false
     });
   }
 
+  endPainWithFriend = () => {
+    this.setState({ isShowDraw: false });
+    this.props.socket.emit(SocketEvent.endDraw, { to: this.state.friendId });
+  };
+
   render() {
-    const { clientId, callFrom, callModal, callAction, localSrc, peerSrc, currentDrawingId, drawAction } = this.state;
+    const { clientId, callFrom, callModal, callAction, localSrc, peerSrc, isShowDraw, friendId } = this.state;
+    const { socket } = this.props;
     return (
       <div>
-        <Link id='go-to-shape' style={{display: 'none'}} to="/shape">About</Link>
-        {!callAction && <CallScreen
+        {(!callAction || !isShowDraw) && <CallScreen
           clientId={clientId}
           startCall={this.startCallHandler}
-          startPain={this.startPain.bind(this)}
         />}
-        {(!isEmpty(this.config) || currentDrawingId) && (
+        {!isEmpty(this.config) && (
           <CallAction
-            status={callAction || drawAction}
+            status={callAction}
             localSrc={localSrc}
             peerSrc={peerSrc}
             config={this.config || {}}
             mediaDevice={this.pc.mediaDevice}
             endCall={this.endCallHandler}
-            drawingId={currentDrawingId}
+            startPainWithFriend={this.startPainWithFriend.bind(this)}
+            isShowDraw={isShowDraw}
+            endPainWithFriend={this.endPainWithFriend.bind(this)}
           />
         )}
-        {!currentDrawingId && <CallModal
+        {<CallModal
           status={callModal}
           startCall={this.startCallHandler}
           rejectCall={this.rejectCallHandler}
-          acceptDraw={this.acceptDraw.bind(this)}
-          rejectDraw={this.rejectDraw.bind(this)}
           callFrom={callFrom}
-          drawAction={drawAction}
         />}
+        {
+          isShowDraw && <Shape socket={socket} friendId={friendId} />
+        }
       </div>
     );
   }

@@ -16,10 +16,7 @@ const App: FC = () => {
   return <BrowserRouter>
     <Routes>
       <Route path="/" element={<VideoCall socket={socket} />} />
-      <Route
-        path="/shape"
-        element={<Shape socket={socket} />}
-      />
+      
     </Routes>
   </BrowserRouter>;
 };

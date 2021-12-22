@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Dropdown, Menu } from 'semantic-ui-react';
-import { ShapeTypes, ShapeTypesLabel } from '../../../constants/enums';
+import { ShapeTypesLabel } from '../../../constants/enums';
 
 interface LeftMenuProps {
   handleAddShape: Function;
@@ -27,14 +27,18 @@ const LeftMenu = (props: LeftMenuProps) => {
           active={activeItem === 'settings'}
           onClick={handleItemClick}
         />
-        <Dropdown item text='Add Shape'>
+         <Dropdown text='Add Shape'>
           <Dropdown.Menu>
             {
-              Object.values(ShapeTypes).map((l) => {
-                if (Number.isInteger(Number(l))) {
-                  return <Dropdown.Item value={l} onClick={() => props.handleAddShape(l)}>{ShapeTypesLabel.get(Number(l))}</Dropdown.Item>;
-                }
-              })
+             
+              ShapeTypesLabel?.map(({ value, text, icon, imgUrl }, index) => <Dropdown.Item  
+              key={'shape-type-' + index} 
+              value={value} 
+              icon={icon} 
+              image={imgUrl} 
+              text={text} 
+              onClick={() => props.handleAddShape(value)}
+              />)
             }
           </Dropdown.Menu>
         </Dropdown>

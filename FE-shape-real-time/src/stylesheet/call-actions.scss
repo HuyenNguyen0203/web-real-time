@@ -8,34 +8,35 @@
 	z-index: -1;
 	@include transition(opacity 0.5s);
 	@include bg-gradient(top, #ae92e2 0%, #cfd8db 100%);
-	
+
 	&.active {
 		opacity: 1;
 		z-index: auto;
 	}
-	
+
 	.video-control {
-    position: absolute;
-    width: 400px;
-    padding: 20px;
-    left: calc(50vw - 200px);
-    bottom: 10px;
-    background: -webkit-linear-gradient(top, #C4FAD8 0%, #5bc1e0 100%);
-    border-radius: 5px;
-    text-align: center;
+		position: absolute;
+		width: 400px;
+		padding: 20px;
+		left: calc(50vw - 200px);
+		bottom: 10px;
+		background: -webkit-linear-gradient(top, #c4fad8 0%, #5bc1e0 100%);
+		border-radius: 5px;
+		text-align: center;
+		z-index: 9;
 	}
-	
+
 	video {
 		position: absolute;
 	}
-	
+
 	#localVideo {
 		bottom: 0;
 		right: 0;
 		width: 20%;
 		height: 20%;
 	}
-	
+
 	#peerVideo {
 		width: 100%;
 		height: 100%;
@@ -43,12 +44,19 @@
 }
 
 @include keyframes(in-fadeout) {
-	0% {opacity: 1}
-	75% {opacity: 1}
-	100% {opacity: 0}
+	0% {
+		opacity: 1;
+	}
+	75% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
 }
 
-.video-control, .call-modal {
+.video-control,
+.call-modal {
 	.btn-action {
 		$height: 50px;
 		height: $height;
@@ -62,9 +70,9 @@
 		transition-duration: 0.25s;
 		&.hangup {
 			background-color: $red;
-      color: $white;
+			color: $white;
 		}
-		
+
 		&:not(.hangup) {
 			background-color: $blue;
 			color: $white;
@@ -73,12 +81,10 @@
 			}
 		}
 	}
-	.cancel{
-		background-color: red;
-		padding: 11px;
-		border: none;
-		color: #fff;
-		font-size: 17px;
-		border-radius: 7px;	
+	.btn-pain {
+		background: $yellow !important;
+	}
+	.btn-unpain {
+		background: red !important;
 	}
 }

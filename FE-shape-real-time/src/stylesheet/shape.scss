@@ -1,6 +1,28 @@
-.shape-paint {
-  background: #DFF4FF;
-}
-.shape-slider-menu{
-  margin: 20px;
+.shape-container{
+  height: 100vh;
+  margin: 0 !important;
+  .shape-paint {
+    background: transparent;
+  }
+  .wide:first-child{
+    background: #fff !important;
+  }
+  .shape-slider-menu {
+    .shape-logo {
+      margin: 30px;
+    }
+    .dropdown{
+      margin: 12px;
+    }
+    .transition {
+      .item:last-child {
+        i {
+          display: none !important;
+        }
+        img {
+          width: 20px !important;
+        }
+      }
+    }
+  }  
 }

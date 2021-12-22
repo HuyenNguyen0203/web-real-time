@@ -6,13 +6,10 @@ interface CallModalProps {
   callFrom?: string;
   startCall: Function;
   rejectCall: Function;
-  drawAction?: string;
-  acceptDraw: Function;
-  rejectDraw: Function;
 }
 
 const CallModal: React.FC<CallModalProps> = (props) => {
-  const { status, callFrom, startCall, rejectCall, drawAction, acceptDraw, rejectDraw } = props;
+  const { status, callFrom, startCall, rejectCall } = props;
   const acceptWithVideo = (video: boolean) => {
     const config = { audio: true, video };
     return () => startCall(false, callFrom, config);
@@ -40,19 +37,11 @@ const CallModal: React.FC<CallModalProps> = (props) => {
           onClick={() => rejectCall()}
         />
       </div>;
-    } else if (drawAction === 'active') {
-      return <div className={classnames('call-modal', drawAction)}>
-        <p>
-          <span className="caller">{`${callFrom} Incoming draw`}</span>
-        </p>
-        <button type="button" className="btn-draw accept" onClick={() => acceptDraw()}>Accept</button>
-        <button className="btn-draw cancel" onClick={() => rejectDraw()}>Cancel</button>
-      </div>;
     }
   };
 
   return <>
-    {(status === 'active' || drawAction === 'active') && <div className='overlay-background ' />}
+    {status === 'active' && <div className='overlay-background ' />}
     {renderCallModal()}
   </>;
 };

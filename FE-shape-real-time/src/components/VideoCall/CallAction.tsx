@@ -16,10 +16,14 @@ interface CallActionProps {
   mediaDevice: any;
   endCall: Function;
   drawingId?: string;
+  startPainWithFriend: Function;
+  isShowDraw?: boolean;
+  endPainWithFriend: Function;
 }
 
 const CallAction: React.FC<CallActionProps> = (props) => {
-  const { status, localSrc, peerSrc, config, mediaDevice, endCall, drawingId } = props;
+  const { status, localSrc, peerSrc, config, mediaDevice, endCall, drawingId, startPainWithFriend, isShowDraw,
+    endPainWithFriend } = props;
   const peerVideo = useRef<HTMLVideoElement>(null);
   const localVideo = useRef<HTMLVideoElement>(null);
   const [video, setVideo] = useState(config.video);
@@ -54,7 +58,7 @@ const CallAction: React.FC<CallActionProps> = (props) => {
 
   return (
     <div className={classnames('call-window', status)}>
-      <video id="peerVideo" ref={peerVideo} autoPlay />
+      <video id="peerVideo" style={{ display: isShowDraw ? 'none' : 'block' }} ref={peerVideo} autoPlay />
       <video id="localVideo" ref={localVideo} autoPlay muted />
       <div className="video-control">
         <h2>{`${drawingId ? 'Draw' : 'Contact'} with...`}</h2>
@@ -72,6 +76,20 @@ const CallAction: React.FC<CallActionProps> = (props) => {
               className={getButtonClass('fa-microphone', audio)}
               onClick={() => toggleMediaDevice(Devices.Audio)}
             />
+            {
+              !isShowDraw && <button
+                type="button"
+                className={getButtonClass('fa-paint-brush btn-pain', false)}
+                onClick={() => startPainWithFriend()}
+              />
+            }
+            {
+              isShowDraw && <button
+                type="button"
+                className={getButtonClass('fa-paint-brush btn-unpain', false)}
+                onClick={() => endPainWithFriend()}
+              />
+            }
             <button
               type="button"
               className="btn-action hangup fa fa-phone"
@@ -80,7 +98,7 @@ const CallAction: React.FC<CallActionProps> = (props) => {
           </>
         }
         {
-           drawingId && <button className="btn-draw cancel"  onClick={() => endCall(true)}>Cancel</button>
+          drawingId && <button className="btn-draw cancel" onClick={() => endCall(true)}>Cancel</button>
         }
       </div>
     </div>

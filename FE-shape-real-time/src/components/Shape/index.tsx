@@ -10,29 +10,37 @@ let canvas: any;
 
 interface ShapeProps {
   socket: any;
+  friendId: string;
 }
 
 export const Shape = (props: ShapeProps) => {
-  const drawingId = sessionStorage.getItem('drawingId');
-  const { socket } = props;
+  const { socket, friendId } = props;
+
+  const startRealPain = () => {
+    if (friendId) {
+      const base64ImageData = canvas.toJSON();
+      socket.emit(SocketEvent.draw, { base64ImageData, to: friendId });
+    }
+  };
 
   const handleAddShape = (type: ShapeTypes) => {
     let shapeInstance: any;
 
     switch (type) {
       case ShapeTypes.Circle:
-        shapeInstance = new fabric.Circle({ radius: 30, fill: 'green', left: 150, top: 150 });
+        shapeInstance = new fabric.Circle({ radius: 25, fill: '#19282C', left: 150, top: 150 });
         break;
       case ShapeTypes.Square:
         shapeInstance = new fabric.Rect({ fill: 'green', width: 50, height: 50, left: 200, top: 200 });
         break;
       default:
         shapeInstance = new fabric.Triangle({
-          fill: 'green', width: 50, height: 50, left: 240, top: 240
+          fill: '#045A68', width: 50, height: 50, left: 240, top: 240
         });
         break;
     }
     canvas.add(shapeInstance);
+    startRealPain();
   };
 
   const customDelete = () => {
@@ -47,6 +55,7 @@ export const Shape = (props: ShapeProps) => {
       const canvas = target.canvas;
       canvas?.remove(target);
       canvas?.requestRenderAll();
+      startRealPain();
       return true;
     };
 
@@ -69,45 +78,28 @@ export const Shape = (props: ShapeProps) => {
     });
   };
 
-  const startPain = () => {
-    if (drawingId) {
-      const canvas = document.getElementById('shape') as HTMLCanvasElement;
-      const base64ImageData = canvas.toDataURL("image/png");
-      socket.emit(SocketEvent.draw, { base64ImageData, to: drawingId });
-    }
-  };
+
 
   React.useEffect(() => {
-    socket
-      .on(SocketEvent.draw, (data: any) => {
-        if (data && !drawingId) {
-          const image = new Image();
-          const canvas = document.querySelector('#shape') as HTMLCanvasElement;
-          const ctx = canvas?.getContext('2d');
-          image.onload = function () {
-            if (ctx) {
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              ctx.drawImage(image, 0, 0);
-            }
-          };
-
-          image.src = data.base64ImageData;
-        }
-      })
-      .emit(SocketEvent.init);
+    socket.on(SocketEvent.draw, (data: any) => {
+      if (data) {
+        canvas.loadFromJSON(data.base64ImageData, function () {
+          canvas.renderAll();
+        });
+      }
+    });
   }, [socket]);
 
   React.useEffect(() => {
     canvas = new fabric.Canvas('shape', { width: 1000, height: 700 });
     customDelete();
-    canvas.on('after:render', () => {
-      startPain();
-    });
-
+    canvas.on('object:scaling', () => startRealPain());
+    canvas.on('object:rotating', () => startRealPain());
+    canvas.on('object:moving', () => startRealPain());
   }, []);
 
   return <>
-    <Grid>
+    <Grid className='shape-container'>
       <Grid.Column width={4}>
         <LeftMenu handleAddShape={handleAddShape} />
       </Grid.Column>
