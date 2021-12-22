@@ -5,7 +5,7 @@ import { Button } from 'semantic-ui-react';
 
 const getButtonClass = (icon: string, enabled: boolean) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
 
-interface CallWindowProps {
+interface CallActionProps {
   status: string;
   localSrc?: MediaProvider | null;
   peerSrc?: MediaProvider | null;
@@ -15,10 +15,11 @@ interface CallWindowProps {
   };
   mediaDevice: any;
   endCall: Function;
+  drawingId?: string;
 }
 
-const CallWindow: React.FC<CallWindowProps> = (props) => {
-  const { status, localSrc, peerSrc, config, mediaDevice, endCall } = props;
+const CallAction: React.FC<CallActionProps> = (props) => {
+  const { status, localSrc, peerSrc, config, mediaDevice, endCall, drawingId } = props;
   const peerVideo = useRef<HTMLVideoElement>(null);
   const localVideo = useRef<HTMLVideoElement>(null);
   const [video, setVideo] = useState(config.video);
@@ -27,14 +28,14 @@ const CallWindow: React.FC<CallWindowProps> = (props) => {
   useEffect(() => {
     if (peerVideo.current && peerSrc) peerVideo.current.srcObject = peerSrc;
     if (localVideo.current && localSrc) localVideo.current.srcObject = localSrc;
-  },[peerSrc, localSrc]);
+  }, [peerSrc, localSrc]);
 
   useEffect(() => {
     if (mediaDevice) {
       mediaDevice.toggle(Devices.Video, video);
       mediaDevice.toggle(Devices.Audio, audio);
     }
-  });
+  }, [mediaDevice]);
 
   /**
    * Turn on/off a media device
@@ -56,26 +57,34 @@ const CallWindow: React.FC<CallWindowProps> = (props) => {
       <video id="peerVideo" ref={peerVideo} autoPlay />
       <video id="localVideo" ref={localVideo} autoPlay muted />
       <div className="video-control">
-        <Button
-          key="btnVideo"
-          type="button"
-          className={getButtonClass('fa-video-camera', video)}
-          onClick={() => toggleMediaDevice(Devices.Video)}
-        />
-        <Button
-          key="btnAudio"
-          type="button"
-          className={getButtonClass('fa-microphone', audio)}
-          onClick={() => toggleMediaDevice(Devices.Audio)}
-        />
-        <Button
-          type="button"
-          className="btn-action hangup fa fa-phone"
-          onClick={() => endCall(true)}
-        />
+        <h2>{`${drawingId ? 'Draw' : 'Contact'} with...`}</h2>
+        {
+          !drawingId && <>
+            <button
+              key="btnVideo"
+              type="button"
+              className={getButtonClass('fa-video-camera', video)}
+              onClick={() => toggleMediaDevice(Devices.Video)}
+            />
+            <button
+              key="btnAudio"
+              type="button"
+              className={getButtonClass('fa-microphone', audio)}
+              onClick={() => toggleMediaDevice(Devices.Audio)}
+            />
+            <button
+              type="button"
+              className="btn-action hangup fa fa-phone"
+              onClick={() => endCall(true)}
+            />
+          </>
+        }
+        {
+           drawingId && <button className="btn-draw cancel"  onClick={() => endCall(true)}>Cancel</button>
+        }
       </div>
     </div>
   );
 };
 
-export default CallWindow;
+export default CallAction;

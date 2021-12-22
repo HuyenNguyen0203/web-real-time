@@ -4,7 +4,7 @@
 	padding: 20px;
 	left: calc(50vw - 200px);
 	top: calc(50vh - 60px);
-	background: -webkit-linear-gradient(top,#074055 0%,#030D10 100%);
+	background: -webkit-linear-gradient(top, #C4FAD8 0%, #5bc1e0 100%);
 	@include border-radius(5px);
 	text-align: center;
 	display: none;
@@ -17,6 +17,7 @@
 
 	.btn-action:not(.hangup) {
 		background-color: $green;
+		color: $white;
 	}
 
 	span.caller {
@@ -25,6 +26,20 @@
 
 	p {
 		font-size: 1.5em;
+	}
+	.btn-draw{
+		padding: 5px 11px;
+		border: none;
+		color: #fff;
+		font-size: 17px;
+		border-radius: 7px;
+		margin: 20px;		
+	}
+	.accept{
+		background-color: $green;
+	}
+	.cancel{
+		background-color: red;
 	}
 }
 .overlay-background{

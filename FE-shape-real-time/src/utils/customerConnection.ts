@@ -4,14 +4,14 @@ import socket from './socket';
 
 const PC_CONFIG = { iceServers: [{ urls: ['stun:stun.l.google.com:19302'] }] };
 
-class PeerConnection extends Emitter {
+class CustomerConnection extends Emitter {
 
   private pc : any;
   private friendID : any;
   private mediaDevice : any;
   /**
-     * Create a PeerConnection.
-     * @param {String} friendID - ID of the friend you want to call.
+     * 
+     * @param {String} friendID 
      */
   constructor(friendID: String) {
     super();
@@ -29,7 +29,7 @@ class PeerConnection extends Emitter {
   /**
    * Starting the call
    * @param {Boolean} isCaller
-   * @param {Object} config - configuration for the call {audio: boolean, video: boolean}
+   * @param {Object} config 
    */
   start(isCaller: boolean, config: Object) {
     this.mediaDevice
@@ -102,4 +102,4 @@ class PeerConnection extends Emitter {
   }
 }
 
-export default PeerConnection;
+export default CustomerConnection;

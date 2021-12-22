@@ -1,9 +1,9 @@
 import axios from "axios";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 
-import { fetchTodoFailure, fetchTodoSuccess } from "./todo.action";
-import { FETCH_TODO_REQUEST } from "./todo.actionType";
-import { ITodo } from "./todo.type";
+import { fetchTodoFailure, fetchTodoSuccess } from "./shape.action";
+import { FETCH_SHAPE_REQUEST } from "./shape.actionType";
+import { ITodo } from "./shape.type";
 
 const getTodos = () =>
   axios.get<ITodo[]>("https://jsonplaceholder.typicode.com/todos");
@@ -32,8 +32,8 @@ function* fetchTodoSaga(): any {
   Starts worker saga on latest dispatched `FETCH_TODO_REQUEST` action.
   Allows concurrent increments.
 */
-function* todoSaga() {
-  yield all([takeLatest(FETCH_TODO_REQUEST, fetchTodoSaga)]);
+function* shapeSaga() {
+  yield all([takeLatest(FETCH_SHAPE_REQUEST, fetchTodoSaga)]);
 }
 
-export default todoSaga;
+export default shapeSaga;

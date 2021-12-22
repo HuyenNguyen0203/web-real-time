@@ -15,6 +15,7 @@ const randomID = async (counter = 0) => {
   const id = uuidv4();
   return id in users ? randomID(counter + 1) : id;
 }
+
 export const create = async (socket) => {
   const id = await randomID();
   if (id) {

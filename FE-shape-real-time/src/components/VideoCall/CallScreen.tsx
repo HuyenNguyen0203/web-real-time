@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Input, Button } from 'semantic-ui-react';
+import { Input } from 'semantic-ui-react';
 
 interface CallScreenProps {
-  startCall: Function;
+  startCall?: Function;
   clientId?: string;
+  startPain?: Function;
 }
 
 const CallScreen: React.FC<CallScreenProps> = (props) => {
-  const { startCall, clientId } = props;
+  const { startCall, clientId, startPain } = props;
   const [friendID, setFriendID] = useState(null);
 
   /**
@@ -16,8 +17,18 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
    */
   const callWithVideo = (video: boolean) => {
     const config = { audio: true, video };
-    if (friendID) {
+    if (friendID && typeof (startCall) === 'function') {
       startCall(true, friendID, config);
+    }
+  };
+
+  /**
+  * Start the call with or without video
+  * @param {Boolean} video
+  */
+  const startPainWithFriend = () => {
+    if (friendID && typeof (startPain) === 'function') {
+      startPain(friendID);
     }
   };
 
@@ -28,24 +39,31 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
           Welcome to meeting
         </h1>
         <span className='text-id clearfix'>ID: {clientId}</span>
-        <h3>Get started by ID meeting  below</h3>
+        <h3>Please input connect ID </h3>
         <Input
           type="text"
           className='other-id'
           spellCheck={false}
-          focus
           placeholder='Please input ID'
           onChange={(event: any) => setFriendID(event.target.value)} />
         <div>
-          <Button
+          <button
             type="button"
+            disabled={!friendID}
             className="btn-action fa fa-video-camera"
             onClick={() => callWithVideo(true)}
           />
-          <Button
+          <button
             type="button"
+            disabled={!friendID}
             className="btn-action fa fa-phone"
             onClick={() => callWithVideo(false)}
+          />
+          <button
+            type="button"
+            disabled={!friendID}
+            className="btn-action btn-paint fa fa-paint-brush"
+            onClick={() => startPainWithFriend()}
           />
         </div>
       </div>

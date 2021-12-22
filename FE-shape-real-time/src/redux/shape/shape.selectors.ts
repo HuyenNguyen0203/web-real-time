@@ -2,13 +2,13 @@ import { createSelector } from "reselect";
 
 import { AppState } from "../rootReducer";
 
-const getPending = (state: AppState) => state.todo.pending;
+const getPending = (state: AppState) => state.shape.pending;
 
-const getTodos = (state: AppState) => state.todo.todos;
+const getShapes = (state: AppState) => state.shape.todos;
 
-const getError = (state: AppState) => state.todo.error;
+const getError = (state: AppState) => state.shape.error;
 
-export const getTodosSelector = createSelector(getTodos, (todos: any) => todos);
+export const getTodosSelector = createSelector(getShapes, (shapes: any) => shapes);
 
 export const getPendingSelector = createSelector(
   getPending,

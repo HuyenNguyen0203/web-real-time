@@ -1,9 +1,9 @@
 import { combineReducers } from "redux";
 
-import todoReducer from "./todo/todo.reducer";
+import shapeReducer from "./shape/shape.reducer";
 
 const rootReducer = combineReducers({
-  todo: todoReducer,
+  shape: shapeReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
