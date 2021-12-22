@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Component } from 'react';
 import { isEmpty } from 'lodash';
 import { SocketEvent } from '../../constants/videoConstants';
@@ -52,7 +51,7 @@ class VideoCall extends Component<any, AppStates> {
         this.setState({ clientId });
       })
       .on(SocketEvent.request, ({ from }: any) => {
-        this.setState({ callModal: 'active', friendId: from });
+        this.setState({ callModal: 'active', callFrom: from, friendId: from });
       })
       .on(SocketEvent.call, (data: any) => {
         if (data.sdp) {
@@ -88,29 +87,12 @@ class VideoCall extends Component<any, AppStates> {
       .start(isCaller, config);
   }
 
-  // acceptDraw() {
-  //   const { drawingId } = this.state;
-  //   // const canvas = document.getElementById('shape') as HTMLCanvasElement;
-  //   // const base64ImageData = canvas.toDataURL("image/png");
-  //   this.props.socket.emit(SocketEvent.draw, { to: drawingId });
-  //   this.setState({ isDrawing: true });
-  //   document.getElementById('go-to-shape')?.click();
-  // }
-
   startPainWithFriend() {
-    //this.drawId = friendID;
     this.setState({ isShowDraw: true }, () => {
       const { friendId } = this.state;
       this.props.socket.emit(SocketEvent.startDraw, { to: friendId });
     });
-    //this.setState({ fromDrawingId: friendID });
   }
-
-  // handleAddPain() {
-  //   if (this.state.isDrawing) {
-  //     this.startPain(this.drawId);
-  //   }
-  // }
 
   rejectCall() {
     const { callFrom } = this.state;
