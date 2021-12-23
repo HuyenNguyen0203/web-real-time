@@ -18,8 +18,8 @@ export const Shape = (props: ShapeProps) => {
 
   const startRealPain = () => {
     if (friendId) {
-      const base64ImageData = canvas.toJSON();
-      socket.emit(SocketEvent.draw, { base64ImageData, to: friendId });
+      const canvasJsonData = canvas.toJSON();
+      socket.emit(SocketEvent.draw, { canvasJsonData, to: friendId });
     }
   };
 
@@ -85,9 +85,9 @@ export const Shape = (props: ShapeProps) => {
 
 
   React.useEffect(() => {
-    socket.on(SocketEvent.draw, (data: any) => {
-      if (data) {
-        canvas.loadFromJSON(data.base64ImageData, function () {
+    socket.on(SocketEvent.draw, ({ canvasJsonData }: any) => {
+      if (canvasJsonData) {
+        canvas.loadFromJSON(canvasJsonData, () => {
           canvas.renderAll();
         });
       }

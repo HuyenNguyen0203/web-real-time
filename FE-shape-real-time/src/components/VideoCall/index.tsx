@@ -23,7 +23,6 @@ class VideoCall extends Component<any, AppStates> {
   private pc: any;
   startCallHandler: (isCaller: boolean, friendId: string, config: any) => void;
   endCallHandler: (isStarter: boolean) => void;
-
   rejectCallHandler: () => void;
 
   constructor(props: any) {
