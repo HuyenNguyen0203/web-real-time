@@ -14,8 +14,8 @@ interface CallModalProps {
 const CallModal: React.FC<CallModalProps> = (props) => {
   const { status, callFrom, startCall, rejectCall, drawAction, acceptDraw, rejectDraw } = props;
   const acceptWithVideo = (video: boolean) => {
-    const config = { audio: true, video };
-    return () => startCall(false, callFrom, config);
+    console.log({acceptWithVideo});
+    startCall({isCaller: false, callID: callFrom, configStart: { audio: true, video }});
   };
 
   const renderCallModal = () => {
@@ -27,12 +27,12 @@ const CallModal: React.FC<CallModalProps> = (props) => {
         <button
           type="button"
           className="btn-action fa fa-video-camera"
-          onClick={acceptWithVideo(true)}
+          onClick={() => acceptWithVideo(true)}
         />
         <button
           type="button"
           className="btn-action fa fa-phone"
-          onClick={acceptWithVideo(false)}
+          onClick={() => acceptWithVideo(false)}
         />
         <button
           type="button"

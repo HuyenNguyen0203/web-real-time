@@ -1,26 +1,25 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, lazy, Suspense } from 'react';
 import {
   BrowserRouter,
   Route,
   Routes,
 } from "react-router-dom";
-import { Shape } from './components/Shape';
-import VideoCall from './components/VideoCall';
 import socket from './utils/socket';
 
-const App: FC = () => {
-  useEffect(() => {
-    socket.connect();
-  }, []);
+const VideoCall = lazy(() => import('./components/VideoCall'));
+const Shape = lazy(() => import('./components/Shape'));
 
+const App: FC = () => {
   return <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<VideoCall socket={socket} />} />
-      <Route
-        path="/shape"
-        element={<Shape socket={socket} />}
-      />
-    </Routes>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+          <Route path="/" element={<VideoCall socket={socket} />} />
+          <Route
+            path="/shape"
+            element={<Shape socket={socket} />}
+          />
+        </Routes>
+    </Suspense>
   </BrowserRouter>;
 };
 

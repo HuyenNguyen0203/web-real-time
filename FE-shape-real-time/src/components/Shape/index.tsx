@@ -12,7 +12,7 @@ interface ShapeProps {
   socket: any;
 }
 
-export const Shape = (props: ShapeProps) => {
+const Shape = (props: ShapeProps) => {
   const drawingId = sessionStorage.getItem('drawingId');
   const { socket } = props;
 
@@ -120,3 +120,5 @@ export const Shape = (props: ShapeProps) => {
     </Grid>
   </>;
 };
+
+export default Shape;

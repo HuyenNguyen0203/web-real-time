@@ -8,17 +8,16 @@ interface CallScreenProps {
 }
 
 const CallScreen: React.FC<CallScreenProps> = (props) => {
-  const { startCall, clientId, startPain } = props;
   const [friendID, setFriendID] = useState(null);
 
+  const { startCall, clientId, startPain } = props;
   /**
    * Start the call with or without video
    * @param {Boolean} video
    */
   const callWithVideo = (video: boolean) => {
-    const config = { audio: true, video };
-    if (friendID && typeof (startCall) === 'function') {
-      startCall(true, friendID, config);
+    if (clientId && startCall) {
+      startCall({isCaller: true, callID: friendID, configStart: { audio: true, video }});
     }
   };
 
@@ -38,7 +37,8 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
         <h1>
           Welcome to meeting
         </h1>
-        <b>ID:</b><span className='text-id clearfix'>{clientId}</span>
+        
+        <span className='text-id clearfix'>{clientId}</span>
         <h3>Please input connect ID </h3>
         <Input
           type="text"

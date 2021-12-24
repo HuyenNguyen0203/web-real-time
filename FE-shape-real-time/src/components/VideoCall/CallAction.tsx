@@ -19,25 +19,33 @@ interface CallActionProps {
 }
 
 const CallAction: React.FC<CallActionProps> = (props) => {
-  const [video, setVideo] = useState(props.config.video);
-  const [audio, setAudio] = useState(props.config.audio);
   const peerVideo = useRef<HTMLVideoElement>(null);
   const localVideo = useRef<HTMLVideoElement>(null);
+
+  const [video, setVideo] = useState(props.config.video);
+  const [audio, setAudio] = useState(props.config.audio);
+  const [isInitMediaDevice, setIsInitMediaDevice] = useState(false);
 
   const { status, localSrc, peerSrc, mediaDevice, endCall, drawingId } = props;
 
   useEffect(() => {
-    console.log(' INIT VIDEO ');
-    
-    if (peerVideo.current && peerSrc) peerVideo.current.srcObject = peerSrc;
-    if (localVideo.current && localSrc) localVideo.current.srcObject = localSrc;
-  }, [peerSrc, localSrc]);
+    if (peerVideo.current && peerSrc && isInitMediaDevice) {
+      console.log(' INIT VIDEO peerVideo');
+      peerVideo.current.srcObject = peerSrc;
+    }
+    if (localVideo.current && localSrc && isInitMediaDevice) {
+      console.log(' INIT VIDEO localVideo');
+      localVideo.current.srcObject = localSrc;
+    }
+  }, [peerSrc, localSrc, isInitMediaDevice]);
 
   useEffect(() => {
-    if (mediaDevice) {
+    if (mediaDevice && !isInitMediaDevice) {
+      console.log(' INIT mediaDevice ');
       console.log({mediaDevice});
       mediaDevice.toggle(Devices.Video, video);
       mediaDevice.toggle(Devices.Audio, audio);
+      setIsInitMediaDevice(true);
     }
   }, [mediaDevice]);
 
@@ -48,11 +56,11 @@ const CallAction: React.FC<CallActionProps> = (props) => {
   const toggleMediaDevice = (deviceType: string) => {
     if (deviceType === Devices.Video) {
       setVideo(!video);
-      mediaDevice.toggle(Devices.Video);
+      mediaDevice.toggle(Devices.Video, !video);
     }
     if (deviceType === Devices.Audio) {
       setAudio(!audio);
-      mediaDevice.toggle(Devices.Audio);
+      mediaDevice.toggle(Devices.Audio, !audio);
     }
   };
 
@@ -82,9 +90,6 @@ const CallAction: React.FC<CallActionProps> = (props) => {
               onClick={() => endCall(true)}
             />
           </>
-        }
-        {
-           drawingId && <button className="btn-draw cancel"  onClick={() => endCall(true)}>Cancel</button>
         }
       </div>
     </div>

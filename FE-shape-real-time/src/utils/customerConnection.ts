@@ -16,14 +16,17 @@ class CustomerConnection extends Emitter {
   constructor(friendID: String) {
     super();
     this.pc = new RTCPeerConnection(PC_CONFIG);
-    this.pc.onicecandidate = (event: any) => socket.emit('call', {
-      to: this.friendID,
-      candidate: event.candidate
-    });
     this.pc.ontrack = (event: any) => this.emit('peerStream', event.streams[0]);
-
     this.mediaDevice = new MediaDevice();
     this.friendID = friendID;
+    this.pc.onicecandidate = (event: any) => {
+      console.log('this.pc.onicecandidate ', event.candidate);
+      socket.emit('call', {
+        to: this.friendID,
+        candidate: event.candidate
+      });
+    };
+    console.log(' INIT PC_CONFIG ', PC_CONFIG);
   }
 
   /**

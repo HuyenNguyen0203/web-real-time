@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { isEmpty } from 'lodash';
 import { SocketEvent } from '../../constants/videoConstants';
 import CustomerConnection from '../../utils/customerConnection';
 import CallModal from './CallModal';
 import CallScreen from './CallScreen';
 import CallAction from './CallAction';
+import ShapeCMP from '../../components/Shape';
 
 // interface AppStates {
 //   clientId?: string;
@@ -24,27 +25,45 @@ interface VideoCallProps {
 }
 
 const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
-  const [state, setState] = useState({
-    clientId: '',
-    callAction: '',
+  const callObj: any = useRef({pc: null, config: null});
+  const callLocalSrc = useRef(null);
+  const callPeerSrc = useRef(null);
+  const callStatus = useRef<null | string>(null);
+  const [state, setState] = useState<any>({
+    clientId: '123123123',
+    // callAction: '',
     callModal: '',
     callFrom: '',
-    localSrc: null,
-    peerSrc: null,
-    isDrawing: false,
+    // localSrc: null,
+    // peerSrc: null,
+    isDrawing: null,
     fromDrawId: '',
     toDrawId: '',
-    drawAction: ''
+    drawAction: '',
+    friendData: null,
   });
   const [isSocketInit, setIsSocketInit] = useState(false);
-  const { socket } = props;
-  const { clientId, callAction, callModal, callFrom, localSrc, peerSrc, isDrawing, fromDrawId, toDrawId, drawAction } = state;
-  const callObj: any = useRef({pc: null, config: null});
+  const [isInitRTC, setIsInitRTC] = useState(false);
   /// let pc: any = useRef({});
+  const { 
+    clientId,
+    // callAction
+    callModal,
+    callFrom,
+    // localSrc,
+    // peerSrc,
+    isDrawing,
+    fromDrawId,
+    toDrawId,
+    drawAction,
+    friendData,
+  } = state;
+  
+  const { socket } = props;
 
-  const onSetData = (data: Object) => {
+  const onSetData = useCallback((data: {}) => {
     setState({ ...state, ...data });
-  };
+  }, [state]);
 
   /**
    * 
@@ -52,24 +71,58 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
    * @param {string} friendID 
    * @param {any} config 
    */
-  const startCall = (isCaller: boolean, friendID: string, configStart: any) => {
-    callObj.current.config = configStart;
-    callObj.current.pc = new CustomerConnection(friendID)
-      .on('localStream', (src: any) =>
+  const startCall = useCallback((data: {isCaller: boolean, friendID: string, callFrom: string, configStart: any}) => {
+    onSetData({
+      friendData: data,
+      callModal: !(data || {isCaller: false}).isCaller ? '' : state.callModal,
+    });
+  }, [state]);
+
+  const onLocalStream = useCallback(
+    (src: any) => {
+      console.log(' localStream ', {isCaller: (state.friendData || {isCaller: false}).isCaller, src});
+      callLocalSrc.current = src;
+      callStatus.current = 'active';
+      onSetData({
+        callAction: 'active',
+        localSrc: src,
+      });
+    },
+    [state],
+  );
+
+  const onPeerStream = useCallback(
+    (src: any) => {
+      console.log(' peerStream ', callPeerSrc.current, src);
+      if (!callPeerSrc.current) {
+        callPeerSrc.current = src;
         onSetData({
-          callModal: !isCaller ? '' : callModal,
-          CallAction: 'active',
-          localSrc: src
-        }))
-      .on('peerStream', (src: any) => onSetData({
-        peerSrc: src
-      }))
-      .start(isCaller, configStart);
-  };
+          localSrc: callLocalSrc.current,
+          peerSrc: src
+        });
+      }
+    },
+    [state],
+  );
+
+  const onCall = useCallback(({ sdp, candidate }: any) => {
+    if (sdp) {
+      callObj.current.pc.setRemoteDescription(sdp);
+      if (sdp.type === 'offer') {
+        callObj.current.pc.createAnswer();
+      }
+    } else {
+      callObj.current.pc.addIceCandidate(candidate);
+    }
+  }, [state]);
+
+  const startDraw = useCallback(({ from }: any) => {
+          
+    onSetData({ fromDrawId: from, drawAction: 'active' });
+    //this.setState({ drawingId: data.from, drawAction: 'active' });
+  }, [state]);
 
   const acceptDraw = () => {
-    // const canvas = document.getElementById('shape') as HTMLCanvasElement;
-    // const base64ImageData = canvas.toDataURL("image/png");
     socket.emit(SocketEvent.draw, { to: fromDrawId });
     onSetData({ isDrawing: true });
     window.location.href = '/shape';
@@ -78,15 +131,8 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
   const startPain = (friendID: string) => {
     socket.emit(SocketEvent.startDraw, { to: friendID });
     onSetData({ toDrawId: friendID, drawAction: 'active' });
-
-    //this.setState({ currentDrawingId: friendID, drawAction: 'active' });
   };
 
-  // handleAddPain() {
-  //   if (this.state.isDrawing) {
-  //     this.startPain(this.drawId);
-  //   }
-  // }
 
   const rejectCall = () => {
     socket.emit('end', { to: callFrom });
@@ -97,7 +143,7 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
 
   const rejectDraw = () => {
     socket.emit('end', { to: fromDrawId });
-    onSetData({ fromDrawId: '', srawAction: '', toDrawId: '' });
+    onSetData({ fromDrawId: '', drawAction: '', toDrawId: '' });
     //this.setState({ drawingId: '', drawAction: '', currentDrawingId: '' });
   };
 
@@ -105,12 +151,34 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
    * 
    * @param {boolean} isStarter 
    */
-  const endCall = (isStarter: boolean) => {
-    if (typeof (callObj?.pc?.stop) === 'function') {
-      callObj?.pc?.stop(isStarter);
+  // const endCall = (isStarter: boolean) => {
+  //   if (callObj?.current?.pc) {
+  //     callObj.current.pc.stop(isStarter);
+  //   }
+  //   callObj.current.pc = null;
+  //   callObj.current.config = null;
+  //   callPeerSrc.current = null;
+  //   callLocalSrc.current = null;
+  //   callStatus.current = '';
+  //   onSetData({
+  //     callAction: '',
+  //     callModal: '',
+  //     localSrc: null,
+  //     peerSrc: null,
+  //     fromDrawId: '',
+  //     drawAction: ''
+  //   });
+  // };
+
+  const endCall = useCallback((isStarter: boolean) => {
+    if (callObj?.current?.pc) {
+      callObj.current.pc.stop(isStarter);
     }
-    callObj.current.pc = {};
+    callObj.current.pc = null;
     callObj.current.config = null;
+    callPeerSrc.current = null;
+    callLocalSrc.current = null;
+    callStatus.current = '';
     onSetData({
       callAction: '',
       callModal: '',
@@ -119,15 +187,7 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
       fromDrawId: '',
       drawAction: ''
     });
-    // this.setState({
-    //   callAction: '',
-    //   callModal: '',
-    //   localSrc: null,
-    //   peerSrc: null,
-    //   currentDrawingId: '',
-    //   drawAction: ''
-    // });
-  };
+  }, [state]);
 
   useEffect(() => {
     if (!isSocketInit && socket?.on) {
@@ -135,44 +195,53 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
         .on(SocketEvent.init, ({ id: clientId }: any) => {
           onSetData({ clientId });
         })
-        .on(SocketEvent.request, ({ from }: any) => {
-          onSetData({ callModal: 'active', callFrom: from });
+        .on(SocketEvent.request, (data: any) => {
+          console.log(SocketEvent.request, data.from);
+          onSetData({ callModal: 'active', callFrom: data.from });
         })
-        .on(SocketEvent.call, ({ sdp, candidate }: any) => {
-          if (sdp) {
-            callObj.current.pc.setRemoteDescription(sdp);
-            if (sdp.type === 'offer') {
-              callObj.current.pc.createAnswer();
-            }
-          } else {
-            callObj.current.pc.addIceCandidate(candidate);
-          }
-        })
-        .on(SocketEvent.startDraw, ({ from }: any) => {
-          onSetData({ fromDrawId: from, drawAction: 'active' });
-          //this.setState({ drawingId: data.from, drawAction: 'active' });
-        })
-        .on(SocketEvent.draw, (data: any) => {
-          if (data) {
-            window.location.href = '/shape';
-            sessionStorage.setItem('drawingId', data.from);
-            sessionStorage.setItem('toDrawId', clientId || '');
-          }
-        })
+        .on(SocketEvent.call, onCall)
+        .on(SocketEvent.startDraw, startDraw)
+        // .on(SocketEvent.draw, (data: any) => {
+        //   if (data) {
+        //     window.location.href = '/shape';
+        //     sessionStorage.setItem('drawingId', clientId);
+        //     sessionStorage.setItem('toDrawId', clientId || '');
+        //   }
+        // })
         .on(SocketEvent.end, () => endCall(false))
         .emit(SocketEvent.init);
       setIsSocketInit(true);
     }
-  }, [socket]);
+    // Return a callback to be run before unmount-ing.
+    return () => {
+      // socket.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (friendData && !isInitRTC) {
+      const { isCaller, configStart, callID } = friendData;
+      console.log({friendData: state.friendData});
+      callObj.current.config = configStart;
+      callObj.current.pc = (new CustomerConnection(callID));
+      callObj.current.pc.on('localStream', onLocalStream);
+      callObj.current.pc.on('peerStream', onPeerStream);
+      callObj.current.pc.start(isCaller, configStart);
+      setIsInitRTC(true);
+    }
+  }, [friendData, isInitRTC]);
+
+  const localSrc = useMemo(() => callLocalSrc.current, [callLocalSrc.current, state]);
+  const peerSrc = useMemo(() => callPeerSrc.current, [callPeerSrc.current, state]);
+  const callAction = useMemo(() => callStatus.current, [callStatus.current, state]);
 
   return (
     <div>
       {!callAction && <CallScreen
         clientId={clientId}
         startCall={startCall}
-        startPain={startPain}
       />}
-      {(!!callObj.current.config || fromDrawId) && (
+      {(!isEmpty(callObj.current.config)) && (
         <CallAction
           status={callAction || drawAction}
           localSrc={localSrc}
@@ -180,7 +249,6 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
           config={callObj.current.config || {}}
           mediaDevice={callObj.current.pc?.mediaDevice}
           endCall={endCall}
-          drawingId={fromDrawId}
         />
       )}
       {!fromDrawId && <CallModal
@@ -190,7 +258,6 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
         acceptDraw={acceptDraw}
         rejectDraw={rejectDraw}
         callFrom={callFrom}
-        drawAction={drawAction}
       />}
     </div>
   );
