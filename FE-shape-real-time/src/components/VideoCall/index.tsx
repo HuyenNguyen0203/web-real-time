@@ -131,22 +131,30 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     socket.emit(SocketEvent.endDraw, { to: friendId });
   };
 
+  const onRequest = useCallback(({ from }: any) => {
+    onSetData({ callModal: 'active', callFrom: from, friendId: from });
+  }, [state]);
+
+
+  const onStartDraw = useCallback(() => {
+    onSetData({ ...state, isShowDraw: true });
+  }, [state]);
+
+
+  const onEndDraw = useCallback(() => {
+    onSetData({ ...state, isShowDraw: false });
+  }, [state]);
+
   useEffect(() => {
     if (!isSocketInit && socket?.on) {
       socket
         .on(SocketEvent.init, ({ id: clientId }: any) => {
           onSetData({ clientId });
         })
-        .on(SocketEvent.request, ({ from }: any) => {
-          onSetData({ callModal: 'active', callFrom: from, friendId: from });
-        })
+        .on(SocketEvent.request, onRequest)
         .on(SocketEvent.call, onCall)
-        .on(SocketEvent.startDraw, () => {
-         onSetData({ isShowDraw: true });
-        })
-        .on(SocketEvent.endDraw, () => {
-          onSetData({ isShowDraw: false });
-        })
+        .on(SocketEvent.startDraw, onStartDraw)
+        .on(SocketEvent.endDraw, onEndDraw)
         .on(SocketEvent.end, () => endCall(false))
         .emit(SocketEvent.init);
       setIsSocketInit(true);
@@ -173,6 +181,8 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
   const localSrc = useMemo(() => callLocalSrc.current, [callLocalSrc.current, state]);
   const peerSrc = useMemo(() => callPeerSrc.current, [callPeerSrc.current, state]);
   const callAction = useMemo(() => callStatus.current, [callStatus.current, state]);
+
+  console.log('abc:', { localSrc, peerSrc, callAction, friendId, clientId, state, callObj });
 
   return (
     <div>

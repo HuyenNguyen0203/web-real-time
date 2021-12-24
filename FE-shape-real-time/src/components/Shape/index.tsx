@@ -10,7 +10,7 @@ let canvas: any;
 
 interface ShapeProps {
   socket: any;
-  friendId: string;
+  friendId: string | null;
 }
 
 export const Shape = (props: ShapeProps) => {
@@ -82,19 +82,16 @@ export const Shape = (props: ShapeProps) => {
     });
   };
 
-
-
   React.useEffect(() => {
     socket.on(SocketEvent.draw, ({ canvasJsonData }: any) => {
+
+      console.log('friend:', friendId);
       if (canvasJsonData) {
         canvas.loadFromJSON(canvasJsonData, () => {
           canvas.renderAll();
         });
       }
     });
-  }, [socket]);
-
-  React.useEffect(() => {
     canvas = new fabric.Canvas('shape', { width: 1000, height: 700 });
     customDelete();
     canvas.on('object:scaling', () => startRealPain());

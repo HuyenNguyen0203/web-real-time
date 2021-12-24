@@ -44,7 +44,7 @@ const CallAction: React.FC<CallActionProps> = (props) => {
   useEffect(() => {
     if (mediaDevice && !isInitMediaDevice) {
       console.log(' INIT mediaDevice ');
-      console.log({mediaDevice});
+      console.log({ mediaDevice });
       mediaDevice.toggle(Devices.Video, video);
       mediaDevice.toggle(Devices.Audio, audio);
       setIsInitMediaDevice(true);
@@ -65,44 +65,44 @@ const CallAction: React.FC<CallActionProps> = (props) => {
       mediaDevice.toggle(Devices.Audio, !audio);
     }
   };
-
+  console.log('bbbb:',{ peerSrc, status, localSrc });
   return (
     <div className={classnames('call-window', status)}>
-      <video id="peerVideo" style={{ display: isShowDraw ? 'none' : 'block' }}  ref={peerVideo} autoPlay />
+      <video id="peerVideo" style={{ display: isShowDraw ? 'none' : 'block' }} ref={peerVideo} autoPlay />
       <video id="localVideo" ref={localVideo} autoPlay muted />
       <div className="video-control">
         <h2>Contact with...</h2>
         <button
-              key="btnVideo"
-              type="button"
-              className={getButtonClass('fa-video-camera', video)}
-              onClick={() => toggleMediaDevice(Devices.Video)}
-            />
-            <button
-              key="btnAudio"
-              type="button"
-              className={getButtonClass('fa-microphone', audio)}
-              onClick={() => toggleMediaDevice(Devices.Audio)}
-            />
-            {
-              !isShowDraw && <button
-                type="button"
-                className={getButtonClass('fa-paint-brush btn-pain', false)}
-                onClick={() => startPainWithFriend()}
-              />
-            }
-            {
-              isShowDraw && <button
-                type="button"
-                className={getButtonClass('fa-paint-brush btn-unpain', false)}
-                onClick={() => endPainWithFriend()}
-              />
-            }
-            <button
-              type="button"
-              className="btn-action hangup fa fa-phone"
-              onClick={() => endCall(true)}
-            />
+          key="btnVideo"
+          type="button"
+          className={getButtonClass('fa-video-camera', video)}
+          onClick={() => toggleMediaDevice(Devices.Video)}
+        />
+        <button
+          key="btnAudio"
+          type="button"
+          className={getButtonClass('fa-microphone', audio)}
+          onClick={() => toggleMediaDevice(Devices.Audio)}
+        />
+        {
+          !isShowDraw && <button
+            type="button"
+            className={getButtonClass('fa-paint-brush btn-pain', false)}
+            onClick={() => startPainWithFriend()}
+          />
+        }
+        {
+          isShowDraw && <button
+            type="button"
+            className={getButtonClass('fa-paint-brush btn-unpain', false)}
+            onClick={() => endPainWithFriend()}
+          />
+        }
+        <button
+          type="button"
+          className="btn-action hangup fa fa-phone"
+          onClick={() => endCall(true)}
+        />
       </div>
     </div>
   );
