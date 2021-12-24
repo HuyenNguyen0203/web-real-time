@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Input } from 'semantic-ui-react';
+import { Icon, Input } from 'semantic-ui-react';
 
 interface CallScreenProps {
   startCall?: Function;
   clientId?: string;
-  startPain?: Function;
 }
 
 const CallScreen: React.FC<CallScreenProps> = (props) => {
   const [friendID, setFriendID] = useState(null);
+  const [isCopied, setIscopied] = useState(false);
 
-  const { startCall, clientId, startPain } = props;
+  const { startCall, clientId } = props;
   /**
    * Start the call with or without video
    * @param {Boolean} video
@@ -25,9 +25,11 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
   * Start the call with or without video
   * @param {Boolean} video
   */
-  const startPainWithFriend = () => {
-    if (friendID && typeof (startPain) === 'function') {
-      startPain(friendID);
+
+  const copyElement = () => {
+    if (!isCopied) {
+      navigator.clipboard.writeText(clientId || '');
+      setIscopied(true);
     }
   };
 
@@ -37,8 +39,11 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
         <h1>
           Welcome to meeting
         </h1>
-        
-        <span className='text-id clearfix'>{clientId}</span>
+        <div className='client-id'>
+          <div className='text-id truncate clearfix' id='client-id'>ID: {clientId}</div>
+          {isCopied ? <span className='icon-copy'><Icon name='check' /> </span>
+            : <span className='icon-copy' onClick={copyElement}><Icon className='copy' name='copy' /></span>}
+        </div>
         <h3>Please input connect ID </h3>
         <Input
           type="text"
@@ -58,12 +63,6 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
             disabled={!friendID}
             className="btn-action fa fa-phone"
             onClick={() => callWithVideo(false)}
-          />
-          <button
-            type="button"
-            disabled={!friendID}
-            className="btn-action btn-paint fa fa-paint-brush"
-            onClick={() => startPainWithFriend()}
           />
         </div>
       </div>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { FC, useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { isEmpty } from 'lodash';
 import { SocketEvent } from '../../constants/videoConstants';
@@ -6,59 +5,35 @@ import CustomerConnection from '../../utils/customerConnection';
 import CallModal from './CallModal';
 import CallScreen from './CallScreen';
 import CallAction from './CallAction';
-import ShapeCMP from '../../components/Shape';
-
-// interface AppStates {
-//   clientId?: string;
-//   callAction: string;
-//   callModal?: string;
-//   callFrom?: string;
-//   localSrc?: null;
-//   peerSrc?: null;
-//   isDrawing?: boolean;
-//   drawingId?: string;
-//   drawAction: string;
-//   currentDrawingId?: string;
-// }
+import { Shape } from '../Shape';
 interface VideoCallProps {
   socket: any;
 }
 
 const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
-  const callObj: any = useRef({pc: null, config: null});
+  const callObj: any = useRef({ pc: null, config: null });
   const callLocalSrc = useRef(null);
   const callPeerSrc = useRef(null);
   const callStatus = useRef<null | string>(null);
   const [state, setState] = useState<any>({
-    clientId: '123123123',
-    // callAction: '',
+    clientId: '',
     callModal: '',
     callFrom: '',
-    // localSrc: null,
-    // peerSrc: null,
-    isDrawing: null,
-    fromDrawId: '',
-    toDrawId: '',
-    drawAction: '',
     friendData: null,
+    isShowDraw: false,
+    friendId: ''
   });
   const [isSocketInit, setIsSocketInit] = useState(false);
   const [isInitRTC, setIsInitRTC] = useState(false);
-  /// let pc: any = useRef({});
-  const { 
+  const {
     clientId,
-    // callAction
     callModal,
     callFrom,
-    // localSrc,
-    // peerSrc,
-    isDrawing,
-    fromDrawId,
-    toDrawId,
-    drawAction,
     friendData,
+    isShowDraw,
+    friendId
   } = state;
-  
+
   const { socket } = props;
 
   const onSetData = useCallback((data: {}) => {
@@ -71,16 +46,17 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
    * @param {string} friendID 
    * @param {any} config 
    */
-  const startCall = useCallback((data: {isCaller: boolean, friendID: string, callFrom: string, configStart: any}) => {
+  const startCall = useCallback((data: { isCaller: boolean, friendID: string, callFrom: string, configStart: any }) => {
     onSetData({
       friendData: data,
-      callModal: !(data || {isCaller: false}).isCaller ? '' : state.callModal,
+      callModal: !(data || { isCaller: false }).isCaller ? '' : state.callModal,
+      friendId: data.friendID || friendId
     });
   }, [state]);
 
   const onLocalStream = useCallback(
     (src: any) => {
-      console.log(' localStream ', {isCaller: (state.friendData || {isCaller: false}).isCaller, src});
+      console.log(' localStream ', { isCaller: (state.friendData || { isCaller: false }).isCaller, src });
       callLocalSrc.current = src;
       callStatus.current = 'active';
       onSetData({
@@ -116,60 +92,16 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     }
   }, [state]);
 
-  const startDraw = useCallback(({ from }: any) => {
-          
-    onSetData({ fromDrawId: from, drawAction: 'active' });
-    //this.setState({ drawingId: data.from, drawAction: 'active' });
-  }, [state]);
-
-  const acceptDraw = () => {
-    socket.emit(SocketEvent.draw, { to: fromDrawId });
-    onSetData({ isDrawing: true });
-    window.location.href = '/shape';
-  };
-
-  const startPain = (friendID: string) => {
-    socket.emit(SocketEvent.startDraw, { to: friendID });
-    onSetData({ toDrawId: friendID, drawAction: 'active' });
-  };
-
 
   const rejectCall = () => {
     socket.emit('end', { to: callFrom });
     onSetData({ callModal: '' });
-    //setCallModal('');
-    //this.setState({ callModal: '' });
-  };
-
-  const rejectDraw = () => {
-    socket.emit('end', { to: fromDrawId });
-    onSetData({ fromDrawId: '', drawAction: '', toDrawId: '' });
-    //this.setState({ drawingId: '', drawAction: '', currentDrawingId: '' });
   };
 
   /**
    * 
    * @param {boolean} isStarter 
    */
-  // const endCall = (isStarter: boolean) => {
-  //   if (callObj?.current?.pc) {
-  //     callObj.current.pc.stop(isStarter);
-  //   }
-  //   callObj.current.pc = null;
-  //   callObj.current.config = null;
-  //   callPeerSrc.current = null;
-  //   callLocalSrc.current = null;
-  //   callStatus.current = '';
-  //   onSetData({
-  //     callAction: '',
-  //     callModal: '',
-  //     localSrc: null,
-  //     peerSrc: null,
-  //     fromDrawId: '',
-  //     drawAction: ''
-  //   });
-  // };
-
   const endCall = useCallback((isStarter: boolean) => {
     if (callObj?.current?.pc) {
       callObj.current.pc.stop(isStarter);
@@ -189,25 +121,32 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     });
   }, [state]);
 
+  const startPainWithFriend = () => {
+    onSetData({ isShowDraw: true });
+    socket.emit(SocketEvent.startDraw, { to: friendId });
+  };
+
+  const endPainWithFriend = () => {
+    onSetData({ isShowDraw: false });
+    socket.emit(SocketEvent.endDraw, { to: friendId });
+  };
+
   useEffect(() => {
     if (!isSocketInit && socket?.on) {
       socket
         .on(SocketEvent.init, ({ id: clientId }: any) => {
           onSetData({ clientId });
         })
-        .on(SocketEvent.request, (data: any) => {
-          console.log(SocketEvent.request, data.from);
-          onSetData({ callModal: 'active', callFrom: data.from });
+        .on(SocketEvent.request, ({ from }: any) => {
+          onSetData({ callModal: 'active', callFrom: from, friendId: from });
         })
         .on(SocketEvent.call, onCall)
-        .on(SocketEvent.startDraw, startDraw)
-        // .on(SocketEvent.draw, (data: any) => {
-        //   if (data) {
-        //     window.location.href = '/shape';
-        //     sessionStorage.setItem('drawingId', clientId);
-        //     sessionStorage.setItem('toDrawId', clientId || '');
-        //   }
-        // })
+        .on(SocketEvent.startDraw, () => {
+         onSetData({ isShowDraw: true });
+        })
+        .on(SocketEvent.endDraw, () => {
+          onSetData({ isShowDraw: false });
+        })
         .on(SocketEvent.end, () => endCall(false))
         .emit(SocketEvent.init);
       setIsSocketInit(true);
@@ -221,7 +160,7 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
   useEffect(() => {
     if (friendData && !isInitRTC) {
       const { isCaller, configStart, callID } = friendData;
-      console.log({friendData: state.friendData});
+      console.log({ friendData: state.friendData });
       callObj.current.config = configStart;
       callObj.current.pc = (new CustomerConnection(callID));
       callObj.current.pc.on('localStream', onLocalStream);
@@ -237,28 +176,34 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
 
   return (
     <div>
-      {!callAction && <CallScreen
-        clientId={clientId}
-        startCall={startCall}
-      />}
-      {(!isEmpty(callObj.current.config)) && (
+      {
+        (!callAction || !isShowDraw) && <CallScreen
+          clientId={clientId}
+          startCall={startCall}
+        />
+      }
+      {!isEmpty(callObj.current.config) && (
         <CallAction
-          status={callAction || drawAction}
+          status={callAction}
           localSrc={localSrc}
           peerSrc={peerSrc}
           config={callObj.current.config || {}}
           mediaDevice={callObj.current.pc?.mediaDevice}
           endCall={endCall}
+          startPainWithFriend={startPainWithFriend}
+          isShowDraw={isShowDraw}
+          endPainWithFriend={endPainWithFriend}
         />
       )}
-      {!fromDrawId && <CallModal
+      <CallModal
         status={callModal}
         startCall={startCall}
         rejectCall={rejectCall}
-        acceptDraw={acceptDraw}
-        rejectDraw={rejectDraw}
         callFrom={callFrom}
-      />}
+      />
+      {
+        isShowDraw && <Shape socket={socket} friendId={friendId} />
+      }
     </div>
   );
 };

@@ -46,6 +46,12 @@ const initSocket = (socket) => {
         socket.emit('failed');
       }
     })
+    .on('end-draw', (data) => {
+      const receiver = users.get(data.to);
+      if (receiver) {
+        receiver.emit('end-draw');
+      }
+    })
     .on('end', (data) => {
       const receiver = users.get(data.to);
       if (receiver) {

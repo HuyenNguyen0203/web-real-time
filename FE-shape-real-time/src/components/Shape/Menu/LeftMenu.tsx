@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Dropdown, Menu } from 'semantic-ui-react';
-import { ShapeTypes, ShapeTypesLabel } from '../../../constants/enums';
+import { ShapeTypesLabel } from '../../../constants/enums';
 
 interface LeftMenuProps {
   handleAddShape: Function;
 }
 const LeftMenu = (props: LeftMenuProps) => {
-  const [activeItem, setActiveItem] = React.useState('account');
+  const [activeItem, setActiveItem] = React.useState('');
 
   const handleItemClick = (e: any) => {
     setActiveItem(e.name);
@@ -27,10 +27,11 @@ const LeftMenu = (props: LeftMenuProps) => {
           active={activeItem === 'settings'}
           onClick={handleItemClick}
         />
-        <Dropdown text='Add Shape'>
+         <Dropdown text='Add Shape'>
           <Dropdown.Menu>
             {
-              ShapeTypesLabel.map(({ value, text, icon, imgUrl }, index) => <Dropdown.Item  
+             
+              ShapeTypesLabel?.map(({ value, text, icon, imgUrl }, index) => <Dropdown.Item  
               key={'shape-type-' + index} 
               value={value} 
               icon={icon} 

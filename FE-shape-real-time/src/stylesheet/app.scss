@@ -11,11 +11,11 @@ body {
   background: $bg-main;
   font-family: 'Kameron', serif;
 }
+
 .btn-action {
   outline: none;
   border: none;
 }
-
 
 @import "call-screen";
 @import "call-actions";

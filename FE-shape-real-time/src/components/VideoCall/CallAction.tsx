@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 import { Devices } from '../../constants/enums';
-import { Button } from 'semantic-ui-react';
 
 const getButtonClass = (icon: string, enabled: boolean) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
 
 interface CallActionProps {
-  status: string;
+  status: string | null;
   localSrc?: MediaProvider | null;
   peerSrc?: MediaProvider | null;
   config: {
@@ -15,7 +14,9 @@ interface CallActionProps {
   };
   mediaDevice: any;
   endCall: Function;
-  drawingId?: string;
+  startPainWithFriend: Function;
+  isShowDraw?: boolean;
+  endPainWithFriend: Function;
 }
 
 const CallAction: React.FC<CallActionProps> = (props) => {
@@ -26,7 +27,8 @@ const CallAction: React.FC<CallActionProps> = (props) => {
   const [audio, setAudio] = useState(props.config.audio);
   const [isInitMediaDevice, setIsInitMediaDevice] = useState(false);
 
-  const { status, localSrc, peerSrc, mediaDevice, endCall, drawingId } = props;
+  const { status, localSrc, peerSrc, mediaDevice, endCall, startPainWithFriend, isShowDraw,
+    endPainWithFriend } = props;
 
   useEffect(() => {
     if (peerVideo.current && peerSrc && isInitMediaDevice) {
@@ -66,13 +68,11 @@ const CallAction: React.FC<CallActionProps> = (props) => {
 
   return (
     <div className={classnames('call-window', status)}>
-      <video id="peerVideo" ref={peerVideo} autoPlay />
+      <video id="peerVideo" style={{ display: isShowDraw ? 'none' : 'block' }}  ref={peerVideo} autoPlay />
       <video id="localVideo" ref={localVideo} autoPlay muted />
       <div className="video-control">
-        <h2>{`${drawingId ? 'Draw' : 'Contact'} with...`}</h2>
-        {
-          !drawingId && <>
-            <button
+        <h2>Contact with...</h2>
+        <button
               key="btnVideo"
               type="button"
               className={getButtonClass('fa-video-camera', video)}
@@ -84,13 +84,25 @@ const CallAction: React.FC<CallActionProps> = (props) => {
               className={getButtonClass('fa-microphone', audio)}
               onClick={() => toggleMediaDevice(Devices.Audio)}
             />
+            {
+              !isShowDraw && <button
+                type="button"
+                className={getButtonClass('fa-paint-brush btn-pain', false)}
+                onClick={() => startPainWithFriend()}
+              />
+            }
+            {
+              isShowDraw && <button
+                type="button"
+                className={getButtonClass('fa-paint-brush btn-unpain', false)}
+                onClick={() => endPainWithFriend()}
+              />
+            }
             <button
               type="button"
               className="btn-action hangup fa fa-phone"
               onClick={() => endCall(true)}
             />
-          </>
-        }
       </div>
     </div>
   );
