@@ -17,6 +17,6 @@ export const ShapeTypesLabel = [
     value: ShapeTypes.Square, text: 'Square', icon: 'square outline'
   },
   {
-    value: ShapeTypes.Triangle, text: 'Triangle', icon: '', imgUrl: require('../assets/images/triangle-a.png')
+    value: ShapeTypes.Triangle, text: 'Triangle', icon: ''
   },
 ];

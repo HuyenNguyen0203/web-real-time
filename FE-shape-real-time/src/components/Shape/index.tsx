@@ -84,8 +84,6 @@ export const Shape = (props: ShapeProps) => {
 
   React.useEffect(() => {
     socket.on(SocketEvent.draw, ({ canvasJsonData }: any) => {
-
-      console.log('friend:', friendId);
       if (canvasJsonData) {
         canvas.loadFromJSON(canvasJsonData, () => {
           canvas.renderAll();

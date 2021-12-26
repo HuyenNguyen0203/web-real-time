@@ -1,5 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
+import { Button } from 'semantic-ui-react';
 
 interface CallModalProps {
   status?: string;
@@ -11,8 +12,7 @@ interface CallModalProps {
 const CallModal: React.FC<CallModalProps> = (props) => {
   const { status, callFrom, startCall, rejectCall } = props;
   const acceptWithVideo = (video: boolean) => {
-    console.log({acceptWithVideo});
-    startCall({isCaller: false, callID: callFrom, configStart: { audio: true, video }});
+    startCall({ isCaller: false, callID: callFrom, configStart: { audio: true, video } });
   };
 
   const renderCallModal = () => {
@@ -21,19 +21,22 @@ const CallModal: React.FC<CallModalProps> = (props) => {
         <p>
           <span className="caller">{`${callFrom} incoming call `}</span>
         </p>
-        <button
+        <Button
+          icon="video camera"
           type="button"
-          className="btn-action fa fa-video-camera"
+          className="btn-action"
           onClick={() => acceptWithVideo(true)}
         />
-        <button
+        <Button
+          icon="phone"
           type="button"
-          className="btn-action fa fa-phone"
+          className="btn-action"
           onClick={() => acceptWithVideo(false)}
         />
-        <button
+        <Button
+          icon="phone"
           type="button"
-          className="btn-action hangup fa fa-phone"
+          className="btn-action hangup"
           onClick={() => rejectCall()}
         />
       </div>;

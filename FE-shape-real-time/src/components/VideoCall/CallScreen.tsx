@@ -3,7 +3,7 @@ import { Icon, Input } from 'semantic-ui-react';
 
 interface CallScreenProps {
   startCall?: Function;
-  clientId?: string;
+  clientId: string | null;
 }
 
 const CallScreen: React.FC<CallScreenProps> = (props) => {

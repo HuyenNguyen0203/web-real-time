@@ -6,10 +6,11 @@ interface LeftMenuProps {
   handleAddShape: Function;
 }
 const LeftMenu = (props: LeftMenuProps) => {
-  const [activeItem, setActiveItem] = React.useState('');
+  const [activeItem, setActiveItem] = React.useState(null);
 
-  const handleItemClick = (e: any) => {
-    setActiveItem(e.name);
+  const handleItemClick = (e: any, data: any) => {
+    setActiveItem(data.value);
+    props.handleAddShape(data.value);
   };
   return <>
     <div className='shape-slider-menu'>
@@ -17,31 +18,22 @@ const LeftMenu = (props: LeftMenuProps) => {
         <div className='shape-logo'>
           <a href="/"><h1>Shape</h1></a>
         </div>
-        <Menu.Item
-          name='account'
-          active={activeItem === 'account'}
-          onClick={handleItemClick}
-        />
-        <Menu.Item
-          name='settings'
-          active={activeItem === 'settings'}
-          onClick={handleItemClick}
-        />
-         <Dropdown text='Add Shape'>
-          <Dropdown.Menu>
-            {
-             
-              ShapeTypesLabel?.map(({ value, text, icon, imgUrl }, index) => <Dropdown.Item  
-              key={'shape-type-' + index} 
-              value={value} 
-              icon={icon} 
-              image={imgUrl} 
-              text={text} 
-              onClick={() => props.handleAddShape(value)}
-              />)
+        {
+          ShapeTypesLabel?.map(({ value, text, icon }, index) => {
+            let iconProps: string | any = icon;
+            if (!icon) {
+              iconProps = { as: () => <img src={require('../../../assets/images/triangle-a.png')} /> };
             }
-          </Dropdown.Menu>
-        </Dropdown>
+            return <Menu.Item
+              key={'shape-type-' + index}
+              value={value}
+              icon={iconProps}
+              name={text}
+              onClick={handleItemClick}
+              active={activeItem == value.toString()}
+            />;
+          })
+        }
       </Menu>
     </div>
   </>;

@@ -1,45 +1,35 @@
 .call-window {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	opacity: 0;
-	z-index: -1;
-	@include transition(opacity 0.5s);
-	@include bg-gradient(top, #ae92e2 0%, #cfd8db 100%);
-
-	&.active {
-		opacity: 1;
-		z-index: auto;
-	}
-
 	.video-control {
-		position: absolute;
 		width: 400px;
 		padding: 20px;
-		left: calc(50vw - 200px);
 		bottom: 10px;
 		background: -webkit-linear-gradient(top, #c4fad8 0%, #5bc1e0 100%);
 		border-radius: 5px;
 		text-align: center;
-		z-index: 9;
-	}
-
-	video {
 		position: absolute;
+		left: calc(50% - 200px);
 	}
-
-	#localVideo {
+	
+	.local-video, .peer-video {
 		bottom: 0;
-		right: 0;
-		width: 20%;
-		height: 20%;
+		width: 217px;
+		height: 122px;
+		position: absolute;
+		video {
+			width: 100%;
+			height: 100%;
+		}
 	}
 
-	#peerVideo {
-		width: 100%;
-		height: 100%;
+	.local-video {
+		right: 5px;
+		p {
+			text-align: right;
+		}
+	}
+
+	.peer-video {
+		left: 5px;
 	}
 }
 
@@ -54,7 +44,6 @@
 		opacity: 0;
 	}
 }
-
 .video-control,
 .call-modal {
 	.btn-action {
@@ -68,6 +57,7 @@
 		border-radius: 50%;
 		cursor: pointer;
 		transition-duration: 0.25s;
+		padding: 0 !important;
 		&.hangup {
 			background-color: $red;
 			color: $white;
@@ -79,6 +69,9 @@
 			&.disable {
 				background-color: $red;
 			}
+		}
+		i {
+			margin: auto;
 		}
 	}
 	.btn-pain {

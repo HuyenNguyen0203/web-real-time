@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 import { Devices } from '../../constants/enums';
+import { Button } from 'semantic-ui-react';
 
 const getButtonClass = (icon: string, enabled: boolean) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
 
@@ -17,6 +18,8 @@ interface CallActionProps {
   startPainWithFriend: Function;
   isShowDraw?: boolean;
   endPainWithFriend: Function;
+  friendId: string | null;
+  isCaller: boolean;
 }
 
 const CallAction: React.FC<CallActionProps> = (props) => {
@@ -27,24 +30,19 @@ const CallAction: React.FC<CallActionProps> = (props) => {
   const [audio, setAudio] = useState(props.config.audio);
   const [isInitMediaDevice, setIsInitMediaDevice] = useState(false);
 
-  const { status, localSrc, peerSrc, mediaDevice, endCall, startPainWithFriend, isShowDraw,
-    endPainWithFriend } = props;
+  const { status, localSrc, peerSrc, mediaDevice, endCall, friendId, isCaller } = props;
 
   useEffect(() => {
     if (peerVideo.current && peerSrc && isInitMediaDevice) {
-      console.log(' INIT VIDEO peerVideo');
       peerVideo.current.srcObject = peerSrc;
     }
     if (localVideo.current && localSrc && isInitMediaDevice) {
-      console.log(' INIT VIDEO localVideo');
       localVideo.current.srcObject = localSrc;
     }
   }, [peerSrc, localSrc, isInitMediaDevice]);
 
   useEffect(() => {
     if (mediaDevice && !isInitMediaDevice) {
-      console.log(' INIT mediaDevice ');
-      console.log({ mediaDevice });
       mediaDevice.toggle(Devices.Video, video);
       mediaDevice.toggle(Devices.Audio, audio);
       setIsInitMediaDevice(true);
@@ -58,49 +56,44 @@ const CallAction: React.FC<CallActionProps> = (props) => {
   const toggleMediaDevice = (deviceType: string) => {
     if (deviceType === Devices.Video) {
       setVideo(!video);
-      mediaDevice.toggle(Devices.Video, !video);
+      mediaDevice.toggle(Devices.Video);
     }
     if (deviceType === Devices.Audio) {
       setAudio(!audio);
-      mediaDevice.toggle(Devices.Audio, !audio);
+      mediaDevice.toggle(Devices.Audio);
     }
   };
-  console.log('bbbb:',{ peerSrc, status, localSrc });
+
   return (
     <div className={classnames('call-window', status)}>
-      <video id="peerVideo" style={{ display: isShowDraw ? 'none' : 'block' }} ref={peerVideo} autoPlay />
-      <video id="localVideo" ref={localVideo} autoPlay muted />
+      <div className='peer-video'>
+        {/* <p>{isCaller ? 'reciver' : 'caller'}</p> */}
+        <video id="peerVideo" ref={peerVideo} autoPlay />
+      </div>
+      <div className='local-video'>
+        {/* <p>{isCaller ? 'caller' : 'reciver'}</p> */}
+        <video id="localVideo" ref={localVideo} autoPlay muted />
+      </div>
       <div className="video-control">
-        <h2>Contact with...</h2>
-        <button
+        <h2>Contact with {friendId}</h2>
+        <Button
           key="btnVideo"
           type="button"
-          className={getButtonClass('fa-video-camera', video)}
+          icon="video camera"
+          className={getButtonClass('fa', video)}
           onClick={() => toggleMediaDevice(Devices.Video)}
         />
-        <button
+        <Button
           key="btnAudio"
           type="button"
-          className={getButtonClass('fa-microphone', audio)}
+          icon="microphone"
+          className={getButtonClass('fa', audio)}
           onClick={() => toggleMediaDevice(Devices.Audio)}
         />
-        {
-          !isShowDraw && <button
-            type="button"
-            className={getButtonClass('fa-paint-brush btn-pain', false)}
-            onClick={() => startPainWithFriend()}
-          />
-        }
-        {
-          isShowDraw && <button
-            type="button"
-            className={getButtonClass('fa-paint-brush btn-unpain', false)}
-            onClick={() => endPainWithFriend()}
-          />
-        }
-        <button
+        <Button
           type="button"
-          className="btn-action hangup fa fa-phone"
+          icon="phone"
+          className="btn-action hangup"
           onClick={() => endCall(true)}
         />
       </div>

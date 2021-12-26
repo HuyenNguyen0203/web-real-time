@@ -1,17 +1,18 @@
-.shape-container{
+.shape-container {
+  position: relative;
   height: 100vh;
   margin: 0 !important;
   .shape-paint {
     background: transparent;
   }
-  .wide:first-child{
+  .wide:first-child {
     background: #fff !important;
   }
   .shape-slider-menu {
     .shape-logo {
       margin: 30px;
     }
-    .dropdown{
+    .dropdown {
       margin: 12px;
     }
     .transition {
@@ -24,5 +25,13 @@
         }
       }
     }
-  }  
+    .menu {
+      .item {
+        img {
+          width: 18px !important;
+          float: right;
+        }
+      }
+    }
+  }
 }

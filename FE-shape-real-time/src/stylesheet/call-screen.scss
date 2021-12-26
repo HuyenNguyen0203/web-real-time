@@ -29,9 +29,12 @@
 		transition-duration: 0.25s;
 		background-color: transparent;
 		color: $blue-light;
-
+		padding: 0 !important;
 		&:hover {
 			background-color: rgba($white, 0.2);
+		}
+		i{
+			margin: auto;
 		}
 	}
 	.btn-paint {

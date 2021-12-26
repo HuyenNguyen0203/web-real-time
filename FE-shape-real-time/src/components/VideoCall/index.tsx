@@ -15,23 +15,26 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
   const callLocalSrc = useRef(null);
   const callPeerSrc = useRef(null);
   const callStatus = useRef<null | string>(null);
+  const callFriendRef = useRef<null | string>(null);
+  const clientIdRef = useRef<null | string>(null);
   const [state, setState] = useState<any>({
-    clientId: '',
+    //clientId: '',
     callModal: '',
     callFrom: '',
     friendData: null,
     isShowDraw: false,
-    friendId: ''
+    isStateChange: false
   });
   const [isSocketInit, setIsSocketInit] = useState(false);
   const [isInitRTC, setIsInitRTC] = useState(false);
   const {
-    clientId,
+    //clientId,
     callModal,
     callFrom,
     friendData,
     isShowDraw,
-    friendId
+    isStateChange
+    //friendId
   } = state;
 
   const { socket } = props;
@@ -41,27 +44,31 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
   }, [state]);
 
   /**
+   * trigger render same class component 
+   */
+  const forceUpdate = () => onSetData({ isStateChange: !isStateChange });
+
+  /**
    * 
    * @param {boolean} isCaller
    * @param {string} friendID 
    * @param {any} config 
    */
-  const startCall = useCallback((data: { isCaller: boolean, friendID: string, callFrom: string, configStart: any }) => {
+  const startCall = useCallback((data: { isCaller: boolean, callID: string, callFrom: string, configStart: any }) => {
     onSetData({
       friendData: data,
       callModal: !(data || { isCaller: false }).isCaller ? '' : state.callModal,
-      friendId: data.friendID || friendId
+      //friendId: data.friendID || friendId
     });
+    callFriendRef.current = data.callID || callFriendRef.current;
   }, [state]);
 
   const onLocalStream = useCallback(
     (src: any) => {
-      console.log(' localStream ', { isCaller: (state.friendData || { isCaller: false }).isCaller, src });
       callLocalSrc.current = src;
       callStatus.current = 'active';
       onSetData({
-        callAction: 'active',
-        localSrc: src,
+        callAction: 'active'
       });
     },
     [state],
@@ -69,7 +76,6 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
 
   const onPeerStream = useCallback(
     (src: any) => {
-      console.log(' peerStream ', callPeerSrc.current, src);
       if (!callPeerSrc.current) {
         callPeerSrc.current = src;
         onSetData({
@@ -117,22 +123,26 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
       localSrc: null,
       peerSrc: null,
       fromDrawId: '',
-      drawAction: ''
+      drawAction: '',
+      friendData: null
     });
+    setIsInitRTC(false);
   }, [state]);
 
   const startPainWithFriend = () => {
     onSetData({ isShowDraw: true });
-    socket.emit(SocketEvent.startDraw, { to: friendId });
+    socket.emit(SocketEvent.startDraw, { to: callFriendRef.current });
   };
 
   const endPainWithFriend = () => {
     onSetData({ isShowDraw: false });
-    socket.emit(SocketEvent.endDraw, { to: friendId });
+    socket.emit(SocketEvent.endDraw, { to: callFriendRef.current });
   };
 
   const onRequest = useCallback(({ from }: any) => {
-    onSetData({ callModal: 'active', callFrom: from, friendId: from });
+    //onSetData({ callModal: 'active', callFrom: from, friendId: from });
+    onSetData({ callModal: 'active', callFrom: from });
+    callFriendRef.current = from;
   }, [state]);
 
 
@@ -149,7 +159,8 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     if (!isSocketInit && socket?.on) {
       socket
         .on(SocketEvent.init, ({ id: clientId }: any) => {
-          onSetData({ clientId });
+          clientIdRef.current = clientId;
+          forceUpdate();
         })
         .on(SocketEvent.request, onRequest)
         .on(SocketEvent.call, onCall)
@@ -168,7 +179,6 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
   useEffect(() => {
     if (friendData && !isInitRTC) {
       const { isCaller, configStart, callID } = friendData;
-      console.log({ friendData: state.friendData });
       callObj.current.config = configStart;
       callObj.current.pc = (new CustomerConnection(callID));
       callObj.current.pc.on('localStream', onLocalStream);
@@ -181,29 +191,34 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
   const localSrc = useMemo(() => callLocalSrc.current, [callLocalSrc.current, state]);
   const peerSrc = useMemo(() => callPeerSrc.current, [callPeerSrc.current, state]);
   const callAction = useMemo(() => callStatus.current, [callStatus.current, state]);
-
-  console.log('abc:', { localSrc, peerSrc, callAction, friendId, clientId, state, callObj });
+  const friendId = useMemo(() => callFriendRef.current, [callFriendRef.current, state]);
+  const clientId = useMemo(() => clientIdRef.current, [clientIdRef.current, state]);
 
   return (
     <div>
       {
-        (!callAction || !isShowDraw) && <CallScreen
+        (!callAction && isEmpty(callObj.current.config)) && <CallScreen
           clientId={clientId}
           startCall={startCall}
         />
       }
       {!isEmpty(callObj.current.config) && (
-        <CallAction
-          status={callAction}
-          localSrc={localSrc}
-          peerSrc={peerSrc}
-          config={callObj.current.config || {}}
-          mediaDevice={callObj.current.pc?.mediaDevice}
-          endCall={endCall}
-          startPainWithFriend={startPainWithFriend}
-          isShowDraw={isShowDraw}
-          endPainWithFriend={endPainWithFriend}
-        />
+        <>
+          <Shape socket={socket} friendId={friendId} />
+          <CallAction
+            status={callAction}
+            localSrc={localSrc}
+            peerSrc={peerSrc}
+            config={callObj.current.config || {}}
+            mediaDevice={callObj.current.pc?.mediaDevice}
+            endCall={endCall}
+            startPainWithFriend={startPainWithFriend}
+            isShowDraw={isShowDraw}
+            endPainWithFriend={endPainWithFriend}
+            friendId={friendId}
+            isCaller={friendData.isCaller}
+          />
+        </>
       )}
       <CallModal
         status={callModal}
@@ -211,9 +226,6 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
         rejectCall={rejectCall}
         callFrom={callFrom}
       />
-      {
-        isShowDraw && <Shape socket={socket} friendId={friendId} />
-      }
     </div>
   );
 };
