@@ -2,13 +2,9 @@ import { createSelector } from "reselect";
 
 import { AppState } from "../rootReducer";
 
-const getPending = (state: AppState) => state.shape.pending;
+const getPending = (state: AppState) => state.videoCall.pending;
 
-const getShapes = (state: AppState) => state.shape.todos;
-
-const getError = (state: AppState) => state.shape.error;
-
-export const getTodosSelector = createSelector(getShapes, (shapes: any) => shapes);
+const getError = (state: AppState) => state.videoCall.error;
 
 export const getPendingSelector = createSelector(
   getPending,

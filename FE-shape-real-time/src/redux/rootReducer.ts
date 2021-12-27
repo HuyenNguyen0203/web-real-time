@@ -1,9 +1,9 @@
 import { combineReducers } from "redux";
 
-import shapeReducer from "./shape/shape.reducer";
+import shapeReducer from "./shape/videoCall.reducer";
 
 const rootReducer = combineReducers({
-  shape: shapeReducer,
+  videoCall: shapeReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

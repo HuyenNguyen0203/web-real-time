@@ -14,10 +14,10 @@ const LeftMenu = (props: LeftMenuProps) => {
   };
   return <>
     <div className='shape-slider-menu'>
-      <Menu secondary vertical>
-        <div className='shape-logo'>
-          <a href="/"><h1>Shape</h1></a>
-        </div>
+      <div className='shape-logo'>
+        <a href="/"><h1>Shape</h1></a>
+      </div>
+      <Menu fluid vertical tabular>
         {
           ShapeTypesLabel?.map(({ value, text, icon }, index) => {
             let iconProps: string | any = icon;

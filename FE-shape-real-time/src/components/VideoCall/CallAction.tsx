@@ -1,25 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 import { Devices } from '../../constants/enums';
-import { Button } from 'semantic-ui-react';
+import { Button, Popup } from 'semantic-ui-react';
+import { useSelector } from 'react-redux';
+import { AppState } from '../../redux/rootReducer';
 
 const getButtonClass = (icon: string, enabled: boolean) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
 
 interface CallActionProps {
-  status: string | null;
-  localSrc?: MediaProvider | null;
-  peerSrc?: MediaProvider | null;
   config: {
     audio: boolean;
     video: boolean;
   };
   mediaDevice: any;
   endCall: Function;
-  startPainWithFriend: Function;
-  isShowDraw?: boolean;
-  endPainWithFriend: Function;
-  friendId: string | null;
-  isCaller: boolean;
 }
 
 const CallAction: React.FC<CallActionProps> = (props) => {
@@ -30,7 +24,8 @@ const CallAction: React.FC<CallActionProps> = (props) => {
   const [audio, setAudio] = useState(props.config.audio);
   const [isInitMediaDevice, setIsInitMediaDevice] = useState(false);
 
-  const { status, localSrc, peerSrc, mediaDevice, endCall, friendId, isCaller } = props;
+  const { mediaDevice, endCall } = props;
+  const { friendId, peerSrc, localSrc, callAction } = useSelector(({ videoCall }: AppState) => videoCall);
 
   useEffect(() => {
     if (peerVideo.current && peerSrc && isInitMediaDevice) {
@@ -65,17 +60,15 @@ const CallAction: React.FC<CallActionProps> = (props) => {
   };
 
   return (
-    <div className={classnames('call-window', status)}>
+    <div className={classnames('call-window', callAction)}>
       <div className='peer-video'>
-        {/* <p>{isCaller ? 'reciver' : 'caller'}</p> */}
         <video id="peerVideo" ref={peerVideo} autoPlay />
       </div>
       <div className='local-video'>
-        {/* <p>{isCaller ? 'caller' : 'reciver'}</p> */}
         <video id="localVideo" ref={localVideo} autoPlay muted />
       </div>
       <div className="video-control">
-        <h2>Contact with {friendId}</h2>
+        <Popup size='large' content={friendId} trigger={<h2> Contact with {friendId}</h2>} />
         <Button
           key="btnVideo"
           type="button"

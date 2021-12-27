@@ -8,9 +8,17 @@
 		text-align: center;
 		position: absolute;
 		left: calc(50% - 200px);
+		h2 {
+			width: 324px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			margin-right: 20px;
+		}
 	}
-	
-	.local-video, .peer-video {
+
+	.local-video,
+	.peer-video {
 		bottom: 0;
 		width: 217px;
 		height: 122px;
@@ -33,17 +41,6 @@
 	}
 }
 
-@include keyframes(in-fadeout) {
-	0% {
-		opacity: 1;
-	}
-	75% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-	}
-}
 .video-control,
 .call-modal {
 	.btn-action {
@@ -56,7 +53,6 @@
 		text-align: center;
 		border-radius: 50%;
 		cursor: pointer;
-		transition-duration: 0.25s;
 		padding: 0 !important;
 		&.hangup {
 			background-color: $red;
@@ -73,11 +69,5 @@
 		i {
 			margin: auto;
 		}
-	}
-	.btn-pain {
-		background: $yellow !important;
-	}
-	.btn-unpain {
-		background: red !important;
 	}
 }

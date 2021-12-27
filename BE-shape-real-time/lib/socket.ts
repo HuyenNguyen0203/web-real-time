@@ -30,26 +30,12 @@ const initSocket = (socket) => {
         socket.emit('failed');
       }
     })
-    .on('start-draw', (data) => {
-      const receiver = users.get(data.to);
-      if (receiver) {
-        receiver.emit('start-draw', {from: id });
-      } else {
-        socket.emit('failed');
-      }
-    })
     .on('draw', (data) => {
       const receiver = users.get(data.to);
       if (receiver) {
         receiver.emit('draw', { ...data, from: id });
       } else {
         socket.emit('failed');
-      }
-    })
-    .on('end-draw', (data) => {
-      const receiver = users.get(data.to);
-      if (receiver) {
-        receiver.emit('end-draw');
       }
     })
     .on('end', (data) => {

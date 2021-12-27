@@ -1,7 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
 import { Button } from 'semantic-ui-react';
-
 interface CallModalProps {
   status?: string;
   callFrom?: string;
@@ -48,6 +47,5 @@ const CallModal: React.FC<CallModalProps> = (props) => {
     {renderCallModal()}
   </>;
 };
-
 
 export default CallModal;

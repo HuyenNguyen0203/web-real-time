@@ -5,16 +5,18 @@ import LeftMenu from './Menu/LeftMenu';
 import { Transform } from 'fabric/fabric-impl';
 import { ShapeTypes } from '../../constants/enums';
 import { DeleteIcon, SocketEvent } from '../../constants/videoConstants';
+import { useSelector } from 'react-redux';
+import { AppState } from '../../redux/rootReducer';
 
 let canvas: any;
 
 interface ShapeProps {
   socket: any;
-  friendId: string | null;
 }
 
 export const Shape = (props: ShapeProps) => {
-  const { socket, friendId } = props;
+  const { socket } = props;
+  const { friendId } = useSelector(({ videoCall }: AppState) => videoCall);
 
   const startRealPain = () => {
     if (friendId) {
@@ -99,10 +101,10 @@ export const Shape = (props: ShapeProps) => {
 
   return <>
     <Grid className='shape-container'>
-      <Grid.Column width={4}>
+      <Grid.Column width={3}>
         <LeftMenu handleAddShape={handleAddShape} />
       </Grid.Column>
-      <Grid.Column width={12}>
+      <Grid.Column width={13}>
         <img id='source' style={{ display: 'none' }} />
         <div className='shape-paint' >
           <canvas className='shape' id='shape' ></canvas>

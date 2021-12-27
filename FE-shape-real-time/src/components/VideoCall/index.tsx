@@ -6,47 +6,37 @@ import CallModal from './CallModal';
 import CallScreen from './CallScreen';
 import CallAction from './CallAction';
 import { Shape } from '../Shape';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppState } from '../../redux/rootReducer';
+import { setCallAction, setClientId, setFriendId, setLocalSrc, setPeerSrc } from '../../redux/shape/videoCall.action';
 interface VideoCallProps {
   socket: any;
 }
 
 const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
+  const dispatch = useDispatch();
   const callObj: any = useRef({ pc: null, config: null });
-  const callLocalSrc = useRef(null);
-  const callPeerSrc = useRef(null);
-  const callStatus = useRef<null | string>(null);
-  const callFriendRef = useRef<null | string>(null);
-  const clientIdRef = useRef<null | string>(null);
+
   const [state, setState] = useState<any>({
-    //clientId: '',
     callModal: '',
     callFrom: '',
     friendData: null,
-    isShowDraw: false,
     isStateChange: false
   });
   const [isSocketInit, setIsSocketInit] = useState(false);
   const [isInitRTC, setIsInitRTC] = useState(false);
   const {
-    //clientId,
     callModal,
     callFrom,
     friendData,
-    isShowDraw,
-    isStateChange
-    //friendId
   } = state;
+  const { friendId, callAction, peerSrc } = useSelector(({ videoCall }: AppState) => videoCall);
 
   const { socket } = props;
 
   const onSetData = useCallback((data: {}) => {
     setState({ ...state, ...data });
   }, [state]);
-
-  /**
-   * trigger render same class component 
-   */
-  const forceUpdate = () => onSetData({ isStateChange: !isStateChange });
 
   /**
    * 
@@ -58,34 +48,21 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     onSetData({
       friendData: data,
       callModal: !(data || { isCaller: false }).isCaller ? '' : state.callModal,
-      //friendId: data.friendID || friendId
     });
-    callFriendRef.current = data.callID || callFriendRef.current;
+    dispatch(setFriendId(data.callID || friendId));
   }, [state]);
 
-  const onLocalStream = useCallback(
-    (src: any) => {
-      callLocalSrc.current = src;
-      callStatus.current = 'active';
-      onSetData({
-        callAction: 'active'
-      });
-    },
-    [state],
-  );
+  const onLocalStream = (src: any) => {
+    dispatch(setLocalSrc(src));
+    //callLocalSrc.current = src;
+    dispatch(setCallAction('active'));
+  };
 
-  const onPeerStream = useCallback(
-    (src: any) => {
-      if (!callPeerSrc.current) {
-        callPeerSrc.current = src;
-        onSetData({
-          localSrc: callLocalSrc.current,
-          peerSrc: src
-        });
-      }
-    },
-    [state],
-  );
+  const onPeerStream = (src: any) => {
+    if (!peerSrc) {
+      dispatch(setPeerSrc(src));
+    }
+  };
 
   const onCall = useCallback(({ sdp, candidate }: any) => {
     if (sdp) {
@@ -114,58 +91,29 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     }
     callObj.current.pc = null;
     callObj.current.config = null;
-    callPeerSrc.current = null;
-    callLocalSrc.current = null;
-    callStatus.current = '';
+    dispatch(setPeerSrc(null));
+    dispatch(setLocalSrc(null));
+    dispatch(setCallAction(''));
     onSetData({
-      callAction: '',
       callModal: '',
-      localSrc: null,
-      peerSrc: null,
-      fromDrawId: '',
-      drawAction: '',
       friendData: null
     });
     setIsInitRTC(false);
   }, [state]);
 
-  const startPainWithFriend = () => {
-    onSetData({ isShowDraw: true });
-    socket.emit(SocketEvent.startDraw, { to: callFriendRef.current });
-  };
-
-  const endPainWithFriend = () => {
-    onSetData({ isShowDraw: false });
-    socket.emit(SocketEvent.endDraw, { to: callFriendRef.current });
-  };
-
   const onRequest = useCallback(({ from }: any) => {
-    //onSetData({ callModal: 'active', callFrom: from, friendId: from });
     onSetData({ callModal: 'active', callFrom: from });
-    callFriendRef.current = from;
-  }, [state]);
-
-
-  const onStartDraw = useCallback(() => {
-    onSetData({ ...state, isShowDraw: true });
-  }, [state]);
-
-
-  const onEndDraw = useCallback(() => {
-    onSetData({ ...state, isShowDraw: false });
+    dispatch(setFriendId(from));
   }, [state]);
 
   useEffect(() => {
     if (!isSocketInit && socket?.on) {
       socket
         .on(SocketEvent.init, ({ id: clientId }: any) => {
-          clientIdRef.current = clientId;
-          forceUpdate();
+          dispatch(setClientId(clientId));
         })
         .on(SocketEvent.request, onRequest)
         .on(SocketEvent.call, onCall)
-        .on(SocketEvent.startDraw, onStartDraw)
-        .on(SocketEvent.endDraw, onEndDraw)
         .on(SocketEvent.end, () => endCall(false))
         .emit(SocketEvent.init);
       setIsSocketInit(true);
@@ -188,35 +136,20 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     }
   }, [friendData, isInitRTC]);
 
-  const localSrc = useMemo(() => callLocalSrc.current, [callLocalSrc.current, state]);
-  const peerSrc = useMemo(() => callPeerSrc.current, [callPeerSrc.current, state]);
-  const callAction = useMemo(() => callStatus.current, [callStatus.current, state]);
-  const friendId = useMemo(() => callFriendRef.current, [callFriendRef.current, state]);
-  const clientId = useMemo(() => clientIdRef.current, [clientIdRef.current, state]);
-
   return (
     <div>
       {
         (!callAction && isEmpty(callObj.current.config)) && <CallScreen
-          clientId={clientId}
           startCall={startCall}
         />
       }
       {!isEmpty(callObj.current.config) && (
         <>
-          <Shape socket={socket} friendId={friendId} />
+          <Shape socket={socket} />
           <CallAction
-            status={callAction}
-            localSrc={localSrc}
-            peerSrc={peerSrc}
             config={callObj.current.config || {}}
             mediaDevice={callObj.current.pc?.mediaDevice}
             endCall={endCall}
-            startPainWithFriend={startPainWithFriend}
-            isShowDraw={isShowDraw}
-            endPainWithFriend={endPainWithFriend}
-            friendId={friendId}
-            isCaller={friendData.isCaller}
           />
         </>
       )}

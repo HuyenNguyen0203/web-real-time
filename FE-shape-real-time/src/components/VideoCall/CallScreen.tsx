@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
-import { Icon, Input } from 'semantic-ui-react';
+import { useSelector } from 'react-redux';
+import { Button, Icon, Input } from 'semantic-ui-react';
+import { AppState } from '../../redux/rootReducer';
 
 interface CallScreenProps {
   startCall?: Function;
-  clientId: string | null;
 }
 
 const CallScreen: React.FC<CallScreenProps> = (props) => {
   const [friendID, setFriendID] = useState(null);
   const [isCopied, setIscopied] = useState(false);
 
-  const { startCall, clientId } = props;
+  const { startCall } = props;
+  const { clientId } = useSelector(({ videoCall }: AppState) => videoCall);
   /**
    * Start the call with or without video
    * @param {Boolean} video
    */
   const callWithVideo = (video: boolean) => {
-    if (clientId && startCall) {
-      startCall({isCaller: true, callID: friendID, configStart: { audio: true, video }});
+    if (clientId && startCall && friendID !== clientId) {
+      startCall({ isCaller: true, callID: friendID, configStart: { audio: true, video } });
     }
   };
 
@@ -51,17 +53,19 @@ const CallScreen: React.FC<CallScreenProps> = (props) => {
           spellCheck={false}
           placeholder='Please input ID'
           onChange={(event: any) => setFriendID(event.target.value)} />
-        <div>
-          <button
+        <div className='action-screen'>
+          <Button
             type="button"
             disabled={!friendID}
-            className="btn-action fa fa-video-camera"
+            icon="video camera"
+            className="btn-action"
             onClick={() => callWithVideo(true)}
           />
-          <button
+          <Button
             type="button"
+            icon="phone"
             disabled={!friendID}
-            className="btn-action fa fa-phone"
+            className="btn-action"
             onClick={() => callWithVideo(false)}
           />
         </div>
