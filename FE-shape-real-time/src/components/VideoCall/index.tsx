@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { FC, useEffect, useRef, useState, useCallback } from 'react';
 import { isEmpty } from 'lodash';
 import { SocketEvent } from '../../constants/videoConstants';
 import CustomerConnection from '../../utils/customerConnection';
@@ -21,7 +21,7 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     callModal: '',
     callFrom: '',
     friendData: null,
-    isStateChange: false
+    showShape: false
   });
   const [isSocketInit, setIsSocketInit] = useState(false);
   const [isInitRTC, setIsInitRTC] = useState(false);
@@ -29,6 +29,7 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     callModal,
     callFrom,
     friendData,
+    showShape
   } = state;
   const { friendId, callAction, peerSrc } = useSelector(({ videoCall }: AppState) => videoCall);
 
@@ -48,13 +49,13 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     onSetData({
       friendData: data,
       callModal: !(data || { isCaller: false }).isCaller ? '' : state.callModal,
+      showShape: data.isCaller ? showShape : true
     });
     dispatch(setFriendId(data.callID || friendId));
   }, [state]);
 
   const onLocalStream = (src: any) => {
     dispatch(setLocalSrc(src));
-    //callLocalSrc.current = src;
     dispatch(setCallAction('active'));
   };
 
@@ -69,6 +70,7 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
       callObj.current.pc.setRemoteDescription(sdp);
       if (sdp.type === 'offer') {
         callObj.current.pc.createAnswer();
+        onSetData({ showShape: true });
       }
     } else {
       callObj.current.pc.addIceCandidate(candidate);
@@ -96,7 +98,8 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
     dispatch(setCallAction(''));
     onSetData({
       callModal: '',
-      friendData: null
+      friendData: null,
+      showShape: false
     });
     setIsInitRTC(false);
   }, [state]);
@@ -143,16 +146,12 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
           startCall={startCall}
         />
       }
-      {!isEmpty(callObj.current.config) && (
-        <>
-          <Shape socket={socket} />
-          <CallAction
-            config={callObj.current.config || {}}
-            mediaDevice={callObj.current.pc?.mediaDevice}
-            endCall={endCall}
-          />
-        </>
-      )}
+      {showShape && <Shape socket={socket} />}
+      {!isEmpty(callObj.current.config) && <CallAction
+        config={callObj.current.config || {}}
+        mediaDevice={callObj.current.pc?.mediaDevice}
+        endCall={endCall}
+      />}
       <CallModal
         status={callModal}
         startCall={startCall}

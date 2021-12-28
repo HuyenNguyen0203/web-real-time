@@ -7,8 +7,10 @@
   }
   .wide:first-child {
     background: #fff !important;
+    min-width: 16rem !important;
   }
   .shape-slider-menu {
+    width: 15rem;
     .shape-logo {
       margin: 30px;
     }

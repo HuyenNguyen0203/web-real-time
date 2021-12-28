@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dropdown, Menu } from 'semantic-ui-react';
+import { Menu } from 'semantic-ui-react';
 import { ShapeTypesLabel } from '../../../constants/enums';
 
 interface LeftMenuProps {

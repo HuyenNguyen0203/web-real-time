@@ -18,13 +18,13 @@ class MediaDevice extends Emitter {
       },
       audio: true
     };
-    if (!config.video) {
-      constraints.video = false;
-    }
 
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then((stream) => {
+        if (!config.video && stream) {
+          stream.getVideoTracks()?.forEach((track: MediaStreamTrack) => set(track, 'enabled', false));
+        }
         this.stream = stream;
         this.emit('stream', stream);
       })
