@@ -77,7 +77,7 @@ export const Shape = (props: ShapeProps) => {
     fabric.Object.prototype.controls.deleteControl = new fabric.Control({
       x: 0.5,
       y: -0.5,
-      offsetY: 16,
+      offsetY: 0,
       cursorStyle: 'pointer',
       mouseUpHandler: deleteObject,
       render: renderIcon
