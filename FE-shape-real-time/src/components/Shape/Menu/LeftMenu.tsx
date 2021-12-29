@@ -1,12 +1,13 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import { Menu } from 'semantic-ui-react';
 import { ShapeTypesLabel } from '../../../constants/enums';
+import imgUrl from '../../../assets/images/triangle-a.png';
 
 interface LeftMenuProps {
   handleAddShape: Function;
 }
 const LeftMenu = (props: LeftMenuProps) => {
-  const [activeItem, setActiveItem] = React.useState(null);
+  const [activeItem, setActiveItem] = useState(null);
 
   const handleItemClick = (e: any, data: any) => {
     setActiveItem(data.value);
@@ -22,7 +23,7 @@ const LeftMenu = (props: LeftMenuProps) => {
           ShapeTypesLabel?.map(({ value, text, icon }, index) => {
             let iconProps: string | any = icon;
             if (!icon) {
-              iconProps = { as: () => <img src={require('../../../assets/images/triangle-a.png')} /> };
+              iconProps = { as: () => <img src={imgUrl} /> };
             }
             return <Menu.Item
               key={'shape-type-' + index}

@@ -8,7 +8,7 @@ import CallAction from './CallAction';
 import { Shape } from '../Shape';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../redux/rootReducer';
-import { setCallAction, setClientId, setFriendId, setLocalSrc, setPeerSrc } from '../../redux/shape/videoCall.action';
+import { setVideoCallState } from '../../redux/shape/videoCall.action';
 interface VideoCallProps {
   socket: any;
 }
@@ -16,28 +16,12 @@ interface VideoCallProps {
 const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
   const dispatch = useDispatch();
   const callObj: any = useRef({ pc: null, config: null });
-
-  const [state, setState] = useState<any>({
-    callModal: '',
-    callFrom: '',
-    friendData: null,
-    showShape: false
-  });
   const [isSocketInit, setIsSocketInit] = useState(false);
   const [isInitRTC, setIsInitRTC] = useState(false);
-  const {
-    callModal,
-    callFrom,
-    friendData,
-    showShape
-  } = state;
-  const { friendId, callAction, peerSrc } = useSelector(({ videoCall }: AppState) => videoCall);
+
+  const { friendId, callAction, peerSrc, callModal, callFrom, friendData, showShape } = useSelector(({ videoCall }: AppState) => videoCall);
 
   const { socket } = props;
-
-  const onSetData = useCallback((data: {}) => {
-    setState({ ...state, ...data });
-  }, [state]);
 
   /**
    * 
@@ -46,74 +30,69 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
    * @param {any} config 
    */
   const startCall = useCallback((data: { isCaller: boolean, callID: string, callFrom: string, configStart: any }) => {
-    onSetData({
+
+    dispatch(setVideoCallState({
+      friendId: data.callID || friendId,
+      callModal: !(data || { isCaller: false }).isCaller ? '' : callModal,
       friendData: data,
-      callModal: !(data || { isCaller: false }).isCaller ? '' : state.callModal,
       showShape: data.isCaller ? showShape : true
-    });
-    dispatch(setFriendId(data.callID || friendId));
-  }, [state]);
+    }));
+  }, [callFrom, callModal]);
 
   const onLocalStream = (src: any) => {
-    dispatch(setLocalSrc(src));
-    dispatch(setCallAction('active'));
+    dispatch(setVideoCallState({ localSrc: src, callAction: 'active' }));
   };
 
   const onPeerStream = (src: any) => {
     if (!peerSrc) {
-      dispatch(setPeerSrc(src));
+      dispatch(setVideoCallState({ peerSrc: src }));
     }
   };
 
-  const onCall = useCallback(({ sdp, candidate }: any) => {
+  const onCall = ({ sdp, candidate }: any) => {
     if (sdp) {
       callObj.current.pc.setRemoteDescription(sdp);
       if (sdp.type === 'offer') {
         callObj.current.pc.createAnswer();
-        onSetData({ showShape: true });
+        dispatch(setVideoCallState({ showShape: true }));
       }
     } else {
       callObj.current.pc.addIceCandidate(candidate);
     }
-  }, [state]);
+  };
 
 
   const rejectCall = () => {
     socket.emit('end', { to: callFrom });
-    onSetData({ callModal: '' });
+    dispatch(setVideoCallState({ callModal: '' }));
   };
 
   /**
    * 
    * @param {boolean} isStarter 
    */
-  const endCall = useCallback((isStarter: boolean) => {
+  const endCall = (isStarter: boolean) => {
     if (callObj?.current?.pc) {
       callObj.current.pc.stop(isStarter);
     }
     callObj.current.pc = null;
     callObj.current.config = null;
-    dispatch(setPeerSrc(null));
-    dispatch(setLocalSrc(null));
-    dispatch(setCallAction(''));
-    onSetData({
-      callModal: '',
-      friendData: null,
-      showShape: false
-    });
+    dispatch(setVideoCallState({
+      callAction: '', localSrc: null, peerSrc: null,
+      callModal: '', friendData: null, showShape: false
+    }));
     setIsInitRTC(false);
-  }, [state]);
+  };
 
-  const onRequest = useCallback(({ from }: any) => {
-    onSetData({ callModal: 'active', callFrom: from });
-    dispatch(setFriendId(from));
-  }, [state]);
+  const onRequest = ({ from }: any) => {
+    dispatch(setVideoCallState({ friendId: from, callModal: 'active', callFrom: from }));
+  };
 
   useEffect(() => {
     if (!isSocketInit && socket?.on) {
       socket
         .on(SocketEvent.init, ({ id: clientId }: any) => {
-          dispatch(setClientId(clientId));
+          dispatch(setVideoCallState({ clientId }));
         })
         .on(SocketEvent.request, onRequest)
         .on(SocketEvent.call, onCall)
@@ -121,10 +100,6 @@ const VideoCall: FC<VideoCallProps> = (props: VideoCallProps) => {
         .emit(SocketEvent.init);
       setIsSocketInit(true);
     }
-    // Return a callback to be run before unmount-ing.
-    return () => {
-      // socket.close();
-    };
   }, []);
 
   useEffect(() => {

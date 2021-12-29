@@ -1,4 +1,4 @@
-import { SET_CALL_ACTION, SET_CLIENT_ID, SET_FRIEND_ID, SET_LOCAL_SRC, SET_PEER_SRC } from "./videoCall.actionType";
+import { SET_VIDEO_CALL_STATE } from "./videoCall.actionType";
 import { VideoCallActions, VideoCallState } from "./videoCall.type";
 
 const initialState: VideoCallState = {
@@ -8,35 +8,19 @@ const initialState: VideoCallState = {
   friendId: '',
   callAction: '',
   peerSrc: null,
-  localSrc: null
+  localSrc: null,
+  callModal: '',
+  callFrom: '',
+  friendData: null,
+  showShape: false
 };
 
 const videoCallReducer = (state = initialState, action: VideoCallActions) => {
   switch (action.type) {
-    case SET_CLIENT_ID:
+    case SET_VIDEO_CALL_STATE:
       return {
         ...state,
-        clientId: action.payload
-      };
-    case SET_FRIEND_ID:
-      return {
-        ...state,
-        friendId: action.payload
-      };
-    case SET_CALL_ACTION:
-      return {
-        ...state,
-        callAction: action.payload
-      };
-    case SET_PEER_SRC:
-      return {
-        ...state,
-        peerSrc: action.payload
-      };
-    case SET_LOCAL_SRC:
-      return {
-        ...state,
-        localSrc: action.payload
+        ...action.payload
       };
     default:
       return {

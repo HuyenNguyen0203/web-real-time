@@ -30,14 +30,23 @@
 	}
 
 	.local-video {
+		bottom: 50px;
 		right: 5px;
 		p {
-			text-align: right;
+			text-align: center;
+			font-size: 18px;
+			font-weight: bold;
 		}
 	}
 
 	.peer-video {
+		bottom: 50px;
 		left: 5px;
+		p {
+			text-align: center;
+			font-size: 18px;
+			font-weight: bold;
+		}
 	}
 }
 

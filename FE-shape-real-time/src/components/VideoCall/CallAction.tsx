@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 import { Devices } from '../../constants/enums';
-import { Button, Popup } from 'semantic-ui-react';
+import { Popup } from 'semantic-ui-react';
 import { useSelector } from 'react-redux';
 import { AppState } from '../../redux/rootReducer';
-
-const getButtonClass = (icon: string, enabled: boolean) => classnames(`btn-action fa ${icon}`, { disable: !enabled });
-
+import ButtonCall from '../share/ButtonAction';
 interface CallActionProps {
   config: {
     audio: boolean;
@@ -44,10 +42,6 @@ const CallAction: React.FC<CallActionProps> = (props) => {
     }
   }, [mediaDevice]);
 
-  /**
-   * Turn on/off a media device
-   * @param {String} deviceType - Type of the device eg: Video, Audio
-   */
   const toggleMediaDevice = (deviceType: string) => {
     if (deviceType === Devices.Video) {
       setVideo(!video);
@@ -62,32 +56,22 @@ const CallAction: React.FC<CallActionProps> = (props) => {
   return (
     <div className={classnames('call-window', callAction)}>
       <div className='peer-video'>
+        <p>Receiver</p>
         <video id="peerVideo" ref={peerVideo} autoPlay />
       </div>
       <div className='local-video'>
+        <p>Me</p>
         <video id="localVideo" ref={localVideo} autoPlay muted />
       </div>
       <div className="video-control">
         <Popup size='large' content={friendId} trigger={<h2> Contact with {friendId}</h2>} />
-        <Button
-          key="btnVideo"
-          type="button"
-          icon="video camera"
-          className={getButtonClass('fa', video)}
-          onClick={() => toggleMediaDevice(Devices.Video)}
-        />
-        <Button
-          key="btnAudio"
-          type="button"
-          icon="microphone"
-          className={getButtonClass('fa', audio)}
-          onClick={() => toggleMediaDevice(Devices.Audio)}
-        />
-        <Button
-          type="button"
-          icon="phone"
-          className="btn-action hangup"
-          onClick={() => endCall(true)}
+        <ButtonCall
+          endCall={endCall}
+          video={video}
+          audio={audio}
+          onCamera={() => toggleMediaDevice(Devices.Video)}
+          onAudio={() => toggleMediaDevice(Devices.Audio)}
+          isShowAcceptPhone={false}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { fabric } from "fabric";
 import { Grid } from 'semantic-ui-react';
 import LeftMenu from './Menu/LeftMenu';
@@ -84,7 +84,7 @@ export const Shape = (props: ShapeProps) => {
     });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     socket.on(SocketEvent.draw, ({ canvasJsonData }: any) => {
       if (canvasJsonData) {
         canvas.loadFromJSON(canvasJsonData, () => {
