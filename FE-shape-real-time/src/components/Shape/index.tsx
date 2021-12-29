@@ -105,7 +105,6 @@ export const Shape = (props: ShapeProps) => {
         <LeftMenu handleAddShape={handleAddShape} />
       </Grid.Column>
       <Grid.Column width={13}>
-        <img id='source' style={{ display: 'none' }} />
         <div className='shape-paint' >
           <canvas className='shape' id='shape' ></canvas>
         </div>
